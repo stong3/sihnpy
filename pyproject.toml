@@ -2,7 +2,7 @@
 name = "sihnpy"
 version = "0.1.0"
 description = "Study of inter-individual heterogeneity of neuroimaging in Python (SIHNpy)"
-authors = ["Frederic St-Onge"]
+authors = ["Frederic St-Onge", "Gabriel St-Onge"]
 license = "MIT"
 readme = "README.md"
 
