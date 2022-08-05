@@ -1,1 +1,0 @@
-from sihnpy import sihnpy
