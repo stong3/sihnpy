@@ -1,7 +1,6 @@
-""" Actual fingerprinting functions
+""" Fingerprinting module
 
-To implement in the future:
-- Allow for different number of participants in either modalities
+See SIHNPY documentation for more information on the functions of the script.
 
 """
 import os
@@ -22,15 +21,15 @@ def import_fingerprint_ids(id_list):
     list
         Returns a list where each element is a participant ID.
     """
-    
+
     #First, import the IDs. Assume the IDs are correct and in the first column only
     if id_list.endswith('.csv'):
-        id_df = pd.read_csv(f'{id_list}', usecols=[0])
-        id_ls = id_df.values.tolist()
+        id_df = pd.read_csv(f'{id_list}', usecols=[0], index_col=0)
+        id_ls = id_df.index.values
 
     elif id_list.endswith('.tsv'):
-        id_df = pd.read_csv(f'{id_list}', index_col=0, sep='\t', usecols=[0])
-        id_ls = id_df.values.tolist()
+        id_df = pd.read_csv(f'{id_list}', sep='\t', usecols=[0], index_col=0,)
+        id_ls = id_df.index.values
 
     else:
         id_arr = np.loadtxt(f'{id_list}', usecols=0)
@@ -54,7 +53,7 @@ def _slice_matrix(nodes_index_within, matrix_file, nodes_index_between=None):
     Returns
     -------
     numpy.array
-        Returns a flattened 
+        Returns a flattened array of the functional connectivity data.
     """
 
     if nodes_index_between:
@@ -144,11 +143,11 @@ class FingerprintMats:
         #First, find all the files in directories and store in a list
         try:
             for filename in os.listdir(self.path_m1):
-                if os.path.isfile(filename):
+                if os.path.isfile(f"{self.path_m1}/{filename}"):
                     self.files_m1.append(filename)
 
             for filename in os.listdir(self.path_m2):
-                if os.path.isfile(filename):
+                if os.path.isfile(f"{self.path_m2}/{filename}"):
                     self.files_m2.append(filename)
         except OSError as path_error:
             raise OSError from path_error
@@ -156,7 +155,7 @@ class FingerprintMats:
     def subject_selection(self, verbose=True):
         """Select participant files that are present in both modalities (i.e., intersection).
         The function assumes that the ID in the ID list will match in some way the file name
-        in the folder (e.g., ID 6745 would match a matrix file named `6745.txt` or 
+        in the folder (e.g., ID 6745 would match a matrix file named `6745.txt` or
         `part6745_rest.txt` or `6745`, but it will not match `674.txt`).
 
         Parameters
@@ -174,16 +173,16 @@ class FingerprintMats:
 
         assert len(self.final_m1) == len(self.final_m2), "Final subject \
             lists from both modalities are not matching in length."
-        assert len(self.final_m1) > 0 & len(self.final_m2) > 0, "Could not match subject IDs \
-            from the lists to any file."
+        assert ((len(self.final_m1) > 0) | (len(self.final_m2) > 0)), "Could not match subject IDs \
+            from the list to any file."
         assert len(self.final_m1) == len(set(self.final_m1)), "Duplicate files detected for \
             modality 1."
         assert len(self.final_m2) == len(set(self.final_m2)), "Duplicate files detected for \
             modality 2"
 
         if verbose is True:
-            print(f'We have in total {len(self.final_m1)} & {len(self.final_m2)} \
-            participants with both modalities.')
+            print(f"We have in total {len(self.final_m1)} & {len(self.final_m2)} " +
+            "participants with both modalities.")
 
     def _import_matrix(self, mod, i):
         """Internal function importing the matrices of interest from the local computer during
@@ -337,7 +336,7 @@ class FingerprintMats:
 
     def fp_metrics_calc(self, name):
         """Method computing the different fingerprint metrics and stores them in a dataframe
-        for export. Each metric is computed and stored in a numpy.array which are then used 
+        for export. Each metric is computed and stored in a numpy.array which are then used
         to populate the dataframe.
 
         Parameters
@@ -376,7 +375,7 @@ class FingerprintMats:
         """Export the fingerprinting output to file. What is outputted and how is user
         dependant. By default, exports the similarity matrix, the subject list and the
         computed fingerprint metrics, and creates separate dictories for the similarity
-        matrix and the subject list. 
+        matrix and the subject list.
 
         Parameters
         ----------
