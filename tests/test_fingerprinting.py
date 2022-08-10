@@ -4,5 +4,3 @@ import pandas as pd
 
 from sihnpy import fingerprinting as s_fp
 
-
-
