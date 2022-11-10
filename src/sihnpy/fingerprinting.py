@@ -262,8 +262,9 @@ class FingerprintMats:
         #Fill lower triangle of the matrix for symmetry
         self.similar_matrix = self.similar_matrix + np.triu(self.similar_matrix, k=1).T
 
-    def _acc_calculator(self):
-        """Internal function computing the accuracy (number of correct identifications).
+    def _fia_calculator(self):
+        """Internal function computing the fingerprint identification accuracy,
+        (number of correct identifications).
 
         Returns
         -------
@@ -272,67 +273,67 @@ class FingerprintMats:
             within the cohort and a 0 indicates incorrect identification.
         """
 
-        acc_coef = np.empty(shape=self.num_sub)
+        fia_coef = np.empty(shape=self.num_sub)
 
         #For every row in the similarity matrix, if the maximum is achieved at the diagonal,
         # attribute a 1, otherwise a 0.
         for i in range(self.num_sub):
             if np.argmax(self.similar_matrix[i, :]) == i:
-                acc_coef[i] = 1
+                fia_coef[i] = 1
             else:
-                acc_coef[i] = 0
+                fia_coef[i] = 0
 
-        return acc_coef
+        return fia_coef
 
-    def _fs_calculator(self):
-        """Internal function computing the fingerprint strength (within-individual correlation).
+    def _si_calculator(self):
+        """Internal function computing the self-identifiability (within-individual correlation).
         This is defined as the diagonal (within-individual correlations) of the similarity matrix.
 
         Returns
         -------
         numpy.array
-            Returns an array containing the fingerprint strength.
+            Returns an array containing the self-identifiability.
         """
-        fs_coef = np.diag(self.similar_matrix)
+        si_coef = np.diag(self.similar_matrix)
 
-        return fs_coef
+        return si_coef
 
-    def _asc_calculator(self):
-        """Internal function computing the alikeness coefficient (between-individual correlation).
+    def _oi_calculator(self):
+        """Internal function computing the others-identifiability (between-individual correlation).
         This is defined as the average of the off-diagonal elements (row-wise) of the similarity
         matrix.
 
         Returns
         -------
         numpy.array
-            Returns an array containing the alikeness coefficient.
+            Returns an array containing the others-identifiability.
         """
-        asc_coef = (self.similar_matrix.sum(1)-np.diag(self.similar_matrix))\
+        oi_coef = (self.similar_matrix.sum(1)-np.diag(self.similar_matrix))\
         /self.similar_matrix.shape[1]-1
 
-        return asc_coef
+        return oi_coef
 
-    def _identif_calculator(self, fs_coef, asc_coef):
-        """Internal function computing the identifiability metrics from Amico et al. (2018).
-        This is simply the substraction of the diagonal and average off-diagonal elements from
-        the similarity matrix.
+    def _identif_calculator(self, si_coef, oi_coef):
+        """Internal function computing the differential identifiability metric 
+        from Amico and Goni (2018). This is simply the substraction of the diagonal and average
+        off-diagonal elements from the similarity matrix.
 
         Parameters
         ----------
-        fs_coef : numpy.array
+        si_coef : numpy.array
             Array containing the fingerprinting coefficient.
-        asc_coef : numpy.array
+        oi_coef : numpy.array
             Array containing the alikeness coefficient.
 
         Returns
         -------
         numpy.array
-            Returns an array containing the identifiability metric.
+            Returns an array containing the differential identifiability.
         """
 
-        identif = fs_coef - asc_coef
+        diff_ident = si_coef - oi_coef
 
-        return identif
+        return diff_ident
 
     def fp_metrics_calc(self, name):
         """Method computing the different fingerprint metrics and stores them in a dataframe
@@ -352,23 +353,23 @@ class FingerprintMats:
         """
 
         #Compute the different metrics
-        acc_coef = self._acc_calculator()
-        fs_coef = self._fs_calculator()
-        asc_coef = self._asc_calculator()
-        identif_coef = self._identif_calculator(fs_coef, asc_coef)
+        fia_coef = self._fia_calculator()
+        si_coef = self._si_calculator()
+        oi_coef = self._oi_calculator()
+        diff_identif_coef = self._identif_calculator(si_coef, oi_coef)
 
         #Create a dictionary and store the measures
-        coef_dict = {f"fs_{name}":fs_coef,
-                    f"asc_{name}":asc_coef,
-                    f"acc_{name}":acc_coef,
-                    f"identif_{name}":identif_coef}
+        coef_dict = {f"si_{name}":si_coef,
+                    f"oi_{name}":oi_coef,
+                    f"fia_{name}":fia_coef,
+                    f"di_{name}":diff_identif_coef}
 
         #Create a dataframe from the dictionary and merge it to the original dataframe
         self.coef_data = pd.concat([self.coef_data, pd.DataFrame(coef_dict)], axis=1,
             ignore_index=True)
         self.coef_data.index.name = "ID"
 
-        assert coef_dict[f"{fs_coef}"].isnull().sum() == 0, "Error: some subjects have \
+        assert coef_dict[f"{si_coef}"].isnull().sum() == 0, "Error: some subjects have \
             missing values from final dataframe"
 
     def fp_mat_export(self, output_path, name, out_full=True, dir_struct=True):
@@ -398,6 +399,7 @@ class FingerprintMats:
 
         self.coef_data.to_csv(f"{path_fp_final}/fp_metrics_{name}.csv")
 
+        #If we want to output the similarity matrices and the subject lists too...
         if out_full is True:
             #We output ALL the elements of the fingerprinting (similarity matrix, subject_list
             #  and fingerprint measures)
