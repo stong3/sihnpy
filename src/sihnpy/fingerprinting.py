@@ -4,8 +4,10 @@ See SIHNPY documentation for more information on the functions of the script.
 
 """
 import os
+
 import numpy as np
 import pandas as pd
+from scipy import stats
 
 def import_fingerprint_ids(id_list):
     """Function importing the list of IDs to analyse. We assume that the list of IDs are stored
@@ -25,19 +27,24 @@ def import_fingerprint_ids(id_list):
     #First, import the IDs. Assume the IDs are correct and in the first column only
     if id_list.endswith('.csv'):
         id_df = pd.read_csv(f'{id_list}', usecols=[0], index_col=0)
-        id_ls = id_df.index.values
+        id_ls = id_df.index.values.tolist() #Gives a list
 
     elif id_list.endswith('.tsv'):
         id_df = pd.read_csv(f'{id_list}', sep='\t', usecols=[0], index_col=0,)
-        id_ls = id_df.index.values
+        id_ls = id_df.index.values.tolist()
 
     else:
-        id_arr = np.loadtxt(f'{id_list}', usecols=0)
-        id_ls = id_arr.tolist()
+        try:
+            id_arr = np.loadtxt(f'{id_list}', usecols=0)
+        except ValueError:
+            #If there is column header or some/all IDs are not floats, we force to be a string
+            id_arr = np.loadtxt(f'{id_list}', dtype='str', usecols=0)
+        id_clean = id_arr[1:] #Assume there is a column header
+        id_ls = id_clean.tolist()
 
     return id_ls
 
-def _slice_matrix(nodes_index_within, matrix_file, nodes_index_between=None):
+def _slice_matrix(matrix_file, nodes_index_within, nodes_index_between=None):
     """Internal function slicing matrices and returning "flattened" vectors.
 
     Parameters
@@ -70,7 +77,7 @@ def _slice_matrix(nodes_index_within, matrix_file, nodes_index_between=None):
     return r_flat
 
 def _norm_data(array_to_norm, norm=True):
-    """Internal function normalizing (if necessary) the arrays before fingeprinting.
+    """Internal function normalizing (if necessary) the arrays before fingeprinting. If normalizing, we change the cells that are calculated as Infinity to be missing.
 
     Parameters
     ----------
@@ -88,9 +95,11 @@ def _norm_data(array_to_norm, norm=True):
 
     if norm is True:
         #By default, we apply a Fisher normalization.
-        z1_norm = np.arctanh(array_to_norm)
+        np.seterr(all='ignore') #Ignore "division by Zero Warning."
+        z1_transf = np.arctanh(array_to_norm)
+        z1_norm = np.where(np.isinf(z1_transf), np.NaN, z1_transf)
     else:
-        z1_norm = array_to_norm
+        z1_norm = array_to_norm.copy()
 
     return z1_norm
 
@@ -117,19 +126,12 @@ class FingerprintMats:
         self.path_m1 = path_m1 #Location of the first set of matrices (first modality)
         self.path_m2 = path_m2 #Location of the second set of matrices (second modality)
 
-        #Create class objects for later
-        self.num_sub = len(id_ls) #Number of subject included based on the ID list
+        #Empty variables to store further computation.
+        self.sub_final = None
+        self.final_m1 = None
+        self.final_m2 = None
 
-        self.files_m1 = [] #Stores raw file names for first modality
-        self.files_m2 = []
-        self.final_m1 = [] #Stores file names where the individual is also in modality 2
-        self.final_m2 = []
-        self.similar_matrix = np.zeros(shape=(self.num_sub, self.num_sub))
-
-        #Create empty dataframe to store the metrics
-        self.coef_measures = pd.DataFrame(index=self.id_ls)
-
-    def fetch_matrice_file_names(self):
+    def fetch_matrix_file_names(self):
         """Simple function importing the matrices as input for the fingerprinting computation.
         Does not require any argument (will use the path variables from the FingerprintMats
         objects).
@@ -140,19 +142,23 @@ class FingerprintMats:
             Checks whether the path exists and is able to import the file.
         """
 
+        files_m1 = []
+        files_m2 = []
         #First, find all the files in directories and store in a list
         try:
             for filename in os.listdir(self.path_m1):
                 if os.path.isfile(f"{self.path_m1}/{filename}"):
-                    self.files_m1.append(filename)
+                    files_m1.append(filename)
 
             for filename in os.listdir(self.path_m2):
                 if os.path.isfile(f"{self.path_m2}/{filename}"):
-                    self.files_m2.append(filename)
-        except OSError as path_error:
-            raise OSError from path_error
+                    files_m2.append(filename)
+        except OSError:
+            raise OSError("ERROR: Path given as input doesn't exist.")
 
-    def subject_selection(self, verbose=True):
+        return files_m1, files_m2
+
+    def subject_selection(self, files_m1, files_m2, verbose=True):
         """Select participant files that are present in both modalities (i.e., intersection).
         The function assumes that the ID in the ID list will match in some way the file name
         in the folder (e.g., ID 6745 would match a matrix file named `6745.txt` or
@@ -166,23 +172,41 @@ class FingerprintMats:
         if verbose is True:
             print(f'We have {len(self.id_ls)} subjects in the list.')
 
-        self.final_m1 = [filename for subject in self.id_ls
-            for filename in self.files_m1 if subject in filename]
-        self.final_m2 = [filename for subject in self.id_ls
-            for filename in self.files_m2 if subject in filename]
+        #Figure out which participants we have files for
+        sub_1 = [subject for subject in self.id_ls
+            for filename in files_m1 if subject in filename]
+        sub_2 = [subject for subject in self.id_ls
+            for filename in files_m2 if subject in filename]
 
-        assert len(self.final_m1) == len(self.final_m2), "Final subject \
-            lists from both modalities are not matching in length."
-        assert ((len(self.final_m1) > 0) | (len(self.final_m2) > 0)), "Could not match subject IDs \
-            from the list to any file."
-        assert len(self.final_m1) == len(set(self.final_m1)), "Duplicate files detected for \
-            modality 1."
-        assert len(self.final_m2) == len(set(self.final_m2)), "Duplicate files detected for \
-            modality 2"
+        #Figure out which participants intersect and sort them in order
+        sub_final = sorted(list(set(sub_1) & set(sub_2)))
+
+        #Figure out which files we have for the participants in both modalities
+        final_m1 = [filename for subject in sub_final
+            for filename in files_m1 if subject in filename]
+        final_m2 = [filename for subject in sub_final
+            for filename in files_m2 if subject in filename]
+
+        #Check user input to make sure it is ok.
+        if ((len(final_m1) == 0) | (len(final_m2) == 0)):
+            raise SystemExit("ERROR: Could not match subject IDs from the list to any file.")
+        if len(final_m1) != len(set(final_m1)):
+            raise SystemExit("ERROR: Files of modality 1 are duplicated")
+        if len(final_m2) != len(set(final_m2)):
+            raise SystemExit("ERROR: Files of modality 1 are duplicated")
 
         if verbose is True:
-            print(f"We have in total {len(self.final_m1)} & {len(self.final_m2)} " +
-            "participants with both modalities.")
+            print(f"We have in total {len(sub_1)} participants in modality 1 & {len(sub_2)} " +
+            "participants in modality 2.")
+            print(f"A total of {len(sub_final)} have both modalities. Only these are used.")
+            print(sub_final)
+
+        #Store the final stuff for later computation
+        self.sub_final = sub_final
+        self.final_m1 = final_m1
+        self.final_m2 = final_m2
+
+        return sub_final, final_m1, final_m2
 
     def _import_matrix(self, mod, i):
         """Internal function importing the matrices of interest from the local computer during
@@ -223,10 +247,10 @@ class FingerprintMats:
 
         Parameters
         ----------
-        nodes_index_within : int
-            Integer representing the number of nodes to select. If nodes_index_between is not
-            given, we assume we want to extract a symmetric sub-matrix (i.e., within-network).
-        nodes_index_between : int, optional
+        nodes_index_within : list of int
+            List of integers representing the number of nodes to select. If nodes_index_between is
+            not given, we assume we want to extract a symmetric sub-matrix (i.e., within-network).
+        nodes_index_between : list of int, optional
             If requested, the matrix fed to the fingerprint can be asymetric, which is the case
             when wanting to do between-network fingerprinting, by default None
         norm : bool, optional
@@ -236,12 +260,17 @@ class FingerprintMats:
         verbose : bool, optional
             _description_, by default True
         """
+        if self.sub_final is None:
+            raise SystemExit("ERROR: Did you instantiate the FingerprintMats class and/or \
+            run the fetch_matrix_file_names and subject_selection functions first?")
+
+        similar_matrix = np.empty((len(self.sub_final), len(self.sub_final)))
 
         #For every participant, we need to correlate to every other participant.
         # We do this using a nested loop
-        for i, sub in enumerate(self.id_ls):
+        for i, sub in enumerate(self.sub_final):
             if verbose is True:
-                print(f"Working on participant {i}: {sub}")
+                print(f"Working on participant {i + 1}: {sub}")
 
             #Imports the right matrix file
             matrix_file_m1 = self._import_matrix(1, i)
@@ -250,19 +279,26 @@ class FingerprintMats:
             #If necessary, we normalize the data using Fisher's transformation
             z1_data = _norm_data(r1_flat, norm=norm)
 
-            for j in (self.id_ls):
+            for j in range(0, len(self.sub_final)):
                 matrix_file_m2 = self._import_matrix(2, j)
                 r2_flat = _slice_matrix(matrix_file_m2, nodes_index_within, nodes_index_between)
                 z2_data = _norm_data(r2_flat, norm=norm)
 
+                #Removing missing cells from calculation
+                missing_removed = ~np.logical_or(np.isnan(z1_data), np.isnan(z2_data))
+                z1_clean = np.compress(missing_removed, z1_data)
+                z2_clean = np.compress(missing_removed, z2_data)
+
                 #Correlate the array from the first subject to the array of the second subject
                 if corr_type == "Pearson":
-                    self.similar_matrix[i,j] = np.corrcoef(z1_data, z2_data)[0,1]
+                    similar_matrix[i,j] = stats.pearsonr(z1_clean, z2_clean)[0]
 
         #Fill lower triangle of the matrix for symmetry
-        self.similar_matrix = self.similar_matrix + np.triu(self.similar_matrix, k=1).T
+        similar_matrix = similar_matrix + np.triu(similar_matrix, k=1).T
 
-    def _fia_calculator(self):
+        return similar_matrix
+
+    def _fia_calculator(self, similar_matrix):
         """Internal function computing the fingerprint identification accuracy,
         (number of correct identifications).
 
@@ -273,19 +309,19 @@ class FingerprintMats:
             within the cohort and a 0 indicates incorrect identification.
         """
 
-        fia_coef = np.empty(shape=self.num_sub)
+        fia_coef = np.empty(shape=len(self.sub_final))
 
         #For every row in the similarity matrix, if the maximum is achieved at the diagonal,
         # attribute a 1, otherwise a 0.
-        for i in range(self.num_sub):
-            if np.argmax(self.similar_matrix[i, :]) == i:
+        for i in range(0, len(self.sub_final)):
+            if np.argmax(similar_matrix[i, :]) == i:
                 fia_coef[i] = 1
             else:
                 fia_coef[i] = 0
 
         return fia_coef
 
-    def _si_calculator(self):
+    def _si_calculator(self, similar_matrix):
         """Internal function computing the self-identifiability (within-individual correlation).
         This is defined as the diagonal (within-individual correlations) of the similarity matrix.
 
@@ -294,11 +330,11 @@ class FingerprintMats:
         numpy.array
             Returns an array containing the self-identifiability.
         """
-        si_coef = np.diag(self.similar_matrix)
+        si_coef = np.diag(similar_matrix)
 
         return si_coef
 
-    def _oi_calculator(self):
+    def _oi_calculator(self, similar_matrix):
         """Internal function computing the others-identifiability (between-individual correlation).
         This is defined as the average of the off-diagonal elements (row-wise) of the similarity
         matrix.
@@ -308,8 +344,8 @@ class FingerprintMats:
         numpy.array
             Returns an array containing the others-identifiability.
         """
-        oi_coef = (self.similar_matrix.sum(1)-np.diag(self.similar_matrix))\
-        /self.similar_matrix.shape[1]-1
+        oi_coef = (similar_matrix.sum(1)-np.diag(similar_matrix))\
+        /(similar_matrix.shape[1]-1)
 
         return oi_coef
 
@@ -335,7 +371,7 @@ class FingerprintMats:
 
         return diff_ident
 
-    def fp_metrics_calc(self, name):
+    def fp_metrics_calc(self, similar_matrix, name):
         """Method computing the different fingerprint metrics and stores them in a dataframe
         for export. Each metric is computed and stored in a numpy.array which are then used
         to populate the dataframe.
@@ -353,26 +389,26 @@ class FingerprintMats:
         """
 
         #Compute the different metrics
-        fia_coef = self._fia_calculator()
-        si_coef = self._si_calculator()
-        oi_coef = self._oi_calculator()
+        fia_coef = self._fia_calculator(similar_matrix=similar_matrix)
+        si_coef = self._si_calculator(similar_matrix=similar_matrix)
+        oi_coef = self._oi_calculator(similar_matrix=similar_matrix)
         diff_identif_coef = self._identif_calculator(si_coef, oi_coef)
 
         #Create a dictionary and store the measures
-        coef_dict = {f"si_{name}":si_coef,
-                    f"oi_{name}":oi_coef,
-                    f"fia_{name}":fia_coef,
-                    f"di_{name}":diff_identif_coef}
+        coef_data = pd.DataFrame(data={
+            'ID':self.sub_final,
+            f"si_{name}":si_coef,
+            f"oi_{name}":oi_coef,
+            f"fia_{name}":fia_coef,
+            f"di_{name}":diff_identif_coef})\
+                .set_index('ID')
 
-        #Create a dataframe from the dictionary and merge it to the original dataframe
-        self.coef_data = pd.concat([self.coef_data, pd.DataFrame(coef_dict)], axis=1,
-            ignore_index=True)
-        self.coef_data.index.name = "ID"
+        if coef_data[f"si_{name}"].isnull().sum() != 0:
+            raise SystemExit("ERROR: Some participants have missing values from final dataframe")
 
-        assert coef_dict[f"{si_coef}"].isnull().sum() == 0, "Error: some subjects have \
-            missing values from final dataframe"
+        return coef_data
 
-    def fp_mat_export(self, output_path, name, out_full=True, dir_struct=True):
+    def fp_mat_export(self, output_path, coef_data, similar_matrix, name, out_full=True, dir_struct=True):
         """Export the fingerprinting output to file. What is outputted and how is user
         dependant. By default, exports the similarity matrix, the subject list and the
         computed fingerprint metrics, and creates separate dictories for the similarity
@@ -391,13 +427,11 @@ class FingerprintMats:
             default True
         """
 
-        assert os.path.exists(output_path), "Error: Path for output doesn't exist."
-
         path_fp_final = f'{output_path}/{name}'
-        if not os.path.exists(path_fp_final):
+        if os.path.exists(path_fp_final) is False:
             os.makedirs(path_fp_final)
 
-        self.coef_data.to_csv(f"{path_fp_final}/fp_metrics_{name}.csv")
+        coef_data.to_csv(f"{path_fp_final}/fp_metrics_{name}.csv")
 
         #If we want to output the similarity matrices and the subject lists too...
         if out_full is True:
@@ -409,17 +443,17 @@ class FingerprintMats:
                 dir_sym = f"{path_fp_final}/similarity_matrices"
                 dir_sub = f"{path_fp_final}/subject_list"
 
-                if not os.makedirs(dir_sym):
+                if not os.path.exists(dir_sym):
                     os.makedirs(dir_sym)
-                if not os.makedirs(dir_sub):
-                    os.makedirs(dir_sym)
+                if not os.path.exists(dir_sub):
+                    os.makedirs(dir_sub)
 
-                np.savetxt(f"{dir_sym}/similarity_matrix_{name}.csv", self.similar_matrix,
+                np.savetxt(f"{dir_sym}/similarity_matrix_{name}.csv", similar_matrix,
                     delimiter=",")
                 np.savetxt(f"{dir_sub}/subject_list_{name}.csv", self.id_ls,
-                    delimiter="\n")
+                    delimiter="\n", fmt="%s")
             else:
-                np.savetxt(f"{path_fp_final}/similarity_matrix_{name}.csv", self.similar_matrix,
+                np.savetxt(f"{path_fp_final}/similarity_matrix_{name}.csv", similar_matrix,
                     delimiter=",")
                 np.savetxt(f"{path_fp_final}/subject_list_{name}.csv", self.id_ls,
-                    delimiter="\n")
+                    delimiter="\n", fmt="%s")
