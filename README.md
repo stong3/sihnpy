@@ -16,6 +16,7 @@ Please note that I do not have a formal computing background and I am learning s
 
 ## Authors
 Frédéric St-Onge - MSc - PhD candidate at McGill University
+
 Gabriel St-Onge - MSc - Research Scientist
 
 If you use `sinhpy`, please consider citing the paper detailing the development of the first few modules of this package (REF).
