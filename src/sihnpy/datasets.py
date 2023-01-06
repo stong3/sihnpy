@@ -1,20 +1,32 @@
 from importlib import resources
+import pandas as pd
 
-def get_fingerprint_simulated_data():
-    """Simple function returning the paths to a .csv file and to two paths of simulated
-    functional connectivity datasets.
+def pad_conp_conn_minimal_dataset():
+    """ Loads paths to functional connectivity data from a subset of 15 participants of the
+    Prevent-AD open data.
 
-    Returns:
-        str: Returns three strings representing the three input paths for
-        the fingerprinting.
+    The dataset contains functional connectivity matrices from three tasks:
+    resting state, memory encoding and memory retrieval. 
+
+    The data was taken from two timepoints:
+    at baseline and 12 months later.
+
+    More information on the data is available here:
+
     """
+    #Create dictionary by visit
+    dict_paths = {"BL00": {}, "FU12": {}}
 
-    list_paths = []
-    for paths in ["fp_simulated_id_list.csv", "matrices_simulated_mod1", "matrices_simulated_mod2"]:
-        with resources.files(f"sihnpy.data.fingerprinting") as f:
-            list_paths.append(f"{str(f)}/{paths}")
-    print(list_paths[0])
-    print(list_paths[1])
-    print(list_paths[2])
-    
-    return list_paths[0], list_paths[1], list_paths[2]
+    #For both visits, for each fMRI modality, find the path to the matrices
+    for visits in dict_paths.keys():
+        for modalities in ['rest_run1', 'rest_run2', 'encoding', 'retrieval']:
+            with resources.files('sihnpy.data.pad_conp_minimal') as f:
+                #Update the nested dictionary with the right path to find the matrices.
+                dict_paths[visits].update({modalities: f"{str(f)}/{visits}/{modalities}"})
+
+    #Import the demographic data in a pandas DF
+    with resources.files('sihnpy.data.pad_conp_minimal') as f:
+        participants = pd.read_csv(f'{str(f)}/participants.tsv', delimiter="\t")\
+            .set_index("participant_id")
+
+    return participants, dict_paths
