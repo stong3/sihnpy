@@ -1,0 +1,16 @@
+participant_id	sex	test_language	handedness_score	handedness_interpretation
+sub-1000173	Male	French	100	Right-handed
+sub-1002928	Female	French	100	Right-handed
+sub-1004359	Female	French	90	Right-handed
+sub-1016072	Female	French	-100	Left-handed
+sub-1031654	Male	French	100	Right-handed
+sub-1072774	Female	French	100	Right-handed
+sub-1076159	Female	French	100	Right-handed
+sub-1121981	Female	French	100	Right-handed
+sub-1154932	Male	French	30	Ambidextrous
+sub-1176949	Female	French	80	Right-handed
+sub-1177880	Female	French	100	Right-handed
+sub-1263509	Female	French	100	Right-handed
+sub-1283278	Female	English	80	Right-handed
+sub-1284264	Female	French	80	Right-handed
+sub-1322140	Female	French	100	Right-handed
