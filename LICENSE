@@ -20,3 +20,41 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+HOWEVER, any party using the data from the PREVENT-AD cohort included within
+the Software agree to respect the conditions that all users downloading the
+data agree to which are:
+
+    PUBLICATION AGREEMENT
+    - If I publish abstracts using data from PREVENT-AD, I agree to the following:
+        "I will cite PREVENT-AD as the source of data in the abstract if space allows
+    - If I publish manuscripts using data from PREVENT-AD, I agree to the following:
+        "I will state the source of data and cite the primary publication of PREVENT-AD 
+        in the methods section of my manuscripts by including language similar to the 
+        following: 'Data used in preparation of this article were obtained from the 
+        Pre-symptomatic Evaluation of Novel or Experimental Treatments for Alzheimer's 
+        Disease (PREVENT-AD) program. (Breitner et al., 2016)'.
+
+    COMMERCIALIZATION AGREEMENT
+    - I will not attempt to sell or claim intellectual property rights in the 
+        PREVENT-AD dataset
+
+    PRIVACY AGREEMENT
+    - I will not attempt to re-identify or re-contact individual participants
+    - In particular, I will not link the data to other datasets if that could 
+        lead to their re-identification
+
+    ETHICAL OVERSIGHT AGREEMENT
+    - I will obtain any required approvals for the use of the PREVENT-AD dataset
+
+    USE RESTRICTION AGREEMENT
+    - This open PREVENT-AD dataset must be used for ‘neurosciences research’ 
+        as stipulated in the consent form.
+
+    CONFIDENTIALITY AGREEMENT
+    - Sharing of this dataset must be done through this portal. Do not 
+        redistribute the data yourself. Redirect potential users to this portal
+        so they can register and agree to these terms.
+
+    MONITORING AGREEMENT
+    - I will respond to requests from PREVENT-AD, if any. I will immediately 
+        report to PREVENT-AD activity that breaches these terms.

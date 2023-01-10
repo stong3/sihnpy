@@ -43,6 +43,8 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 
 `sihnpy` was created by Frederic St-Onge. It is licensed under the terms of the MIT license.
 
+Note that `sihnpy` is shipped with a small subset of the Prevent-AD dataset. These data are provided in open access through the generosity of the SToP-AD center at the Douglas Mental Health University Institute affiliated with McGill University, Montreal, Canada. Using these data to practice the functionalities of the software is encouraged. However, users using the `datasets` module agree to the terms of use of the Prevent-AD dataset (see License for more information).
+
 ## Credits
 
 `sihnpy` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter). This package was developped alongside my reading of the book *Python packages*, an open-source book written by Tomas Beuzen & Tiffany Timbers, available [here](https://py-pkgs.org/welcome).
