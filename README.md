@@ -1,10 +1,11 @@
 # `sihnpy`: Study of inter-individual heterogeneity of neuroimaging in Python
+Hi! Welcome to `sinhpy`!
+
+![sihnpy logo](https://github.com/stong3/sihnpy/docs/images/sihnpy_logo_large_no_bg.png)
 
 ```{image} images/sihnpy_logo_large_no_bg.png
 :align: center
 ```
-
-Hi! Welcome to `sinhpy`!
 
 My goal in creating `sinhpy`'s goal was to provide researchers with an easy-to-use, one-stop-shop for simple methods and analyses aimed at studying inter-individual differences in neuroimaging. 
 
