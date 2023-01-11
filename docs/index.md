@@ -1,4 +1,5 @@
 ```{include} ../README.md
+:relative-images:
 ```
 
 ```{toctree}
@@ -7,6 +8,7 @@
 
 0.pad_data/index.md
 1.fingerprinting/index.md
+license.md
 changelog.md
 contributing.md
 conduct.md
