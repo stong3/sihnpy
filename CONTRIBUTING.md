@@ -26,8 +26,7 @@ and "help wanted" is open to whoever wants to implement it.
 ### Write Documentation
 
 You can never have enough documentation! Please feel free to contribute to any
-part of the documentation, such as the official docs, docstrings, or even
-on the web in blog posts, articles, and such.
+part of the documentation, such as the official docs, docstrings, and such.
 
 ### Submit Feedback
 

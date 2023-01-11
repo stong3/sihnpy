@@ -1,4 +1,4 @@
-# Data available in `sihnpy`: Prevent-AD cohort
+# Prevent-AD cohort data and datasets module
 
 ```{image} ../images/pad_logo.png
 :align: center
@@ -13,10 +13,9 @@ More information on the cohort:
 
 The PREVENT-AD cohort contains information on over 318 participants, with rich phenotyping which includes multimodal imaging (T1, T2, fMRI, ASL, etc.), behavioral data, etc. A subset of 15 participants were downloaded, preprocessed and added to `sihnpy`. Details on the data integrated in `sihnpy` is available in [the next section](datasets_usage.md).
 
-
 Due to the sheer size of the files, I don't recommend downloading the entire dataset, nor downloading the entire dataset on a personal computer. In my case, I have processed the data using the [Beluga cluster](https://docs.alliancecan.ca/wiki/B%C3%A9luga/en), a high-performance computing cluster managed by the [Digital Research Alliance of Canada](https://alliancecan.ca/en)
 
 ```{toctree}
+datasets_usage.ipynb
 download_pad_data.md
-datasets_usage.md
 ```
