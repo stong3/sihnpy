@@ -3,10 +3,6 @@ Hi! Welcome to `sinhpy`!
 
 ![sihnpy logo](docs/images/sihnpy_logo_large_no_bg.png)
 
-```{image} images/sihnpy_logo_large_no_bg.png
-:align: center
-```
-
 My goal in creating `sinhpy`'s goal was to provide researchers with an easy-to-use, one-stop-shop for simple methods and analyses aimed at studying inter-individual differences in neuroimaging. 
 
 Over the past few years, studies using multiple brain imaging modalities have highlighted that individuals in homogenous groups tend to show considerable inter-individual differences. This leads to several challenges:
