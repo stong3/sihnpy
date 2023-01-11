@@ -19,7 +19,7 @@ extensions = [
     "myst_nb",
     "autoapi.extension",
     "sphinx.ext.napoleon",
-    "sphinx.ext.viewcode",
+    "sphinx.ext.viewcode"
 ]
 autoapi_dirs = ["../src"]
 
@@ -34,3 +34,4 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
+html_logo = "images/sihnpy_logo_small_no_bg.png"
