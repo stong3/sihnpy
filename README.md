@@ -1,7 +1,7 @@
 # `sihnpy`: Study of inter-individual heterogeneity of neuroimaging in Python
 Hi! Welcome to `sinhpy`!
 
-![sihnpy logo](images/sihnpy_logo_large_no_bg.png)
+![sihnpy logo](docs/images/sihnpy_logo_large_no_bg.png)
 
 ```{image} images/sihnpy_logo_large_no_bg.png
 :align: center
