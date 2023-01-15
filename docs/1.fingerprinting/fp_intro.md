@@ -10,7 +10,7 @@ While this code was tested and used for publication, it is still undergoing acti
 
 Many of currently used statistical analyses used in neuroimaging rely on the assumption that **brains of similar individuals are relatively homogenous**; meaning that, for example, a group of 30 young individuals (18-30) can be grouped together without worrying too much that there are important differences between them. However, many studies, mainly in the field of functional magnetic resonance imaging have highlighted significant differences between individuals of the "same" group. [^Mueller_2013],[^Finn_2015] 
 
-This is what prompted the development of the original functional connectome fingerprinting methodology by Finn et al. (2015)[^Finn_2015]. The general rationale behind **fingerprinting** is that if there is important variability between individuals in terms of brain connectivity patterns, the pattern of each individual should be unique, just like a digital fingerprint. Previous research has shown that these fingerprints are accurate **1) across time**, **2) across functional MRI tasks** and **3) when using other neuroimaging modalities**.
+This is what prompted the development of the original functional connectome fingerprinting methodology by Finn et al. (2015)[^Finn_2015]. The general rationale behind **fingerprinting** is that if there is important variability between individuals in terms of brain connectivity patterns, the pattern of each individual should be unique, just like a digital fingerprint. Previous research has shown that these fingerprints are accurate **1) across time**, **2) across functional MRI tasks** and **3) when using other neuroimaging modalities**. To facilitate understanding, when I refer to "modalities" in the documentation, it can mean any of the three options I list above, depending on your data.
 
 ## Definitions
 
@@ -31,7 +31,7 @@ While there is no clear consensus in the field, we are using the definitions fro
 - **Fingerprint identification accuracy**: whether a given individual was identified using a different brain imaging session
 - **Self-identifiability**: within-individual correlation of two brain imaging sessions
 - **Others-identifiability**: between-individual correlation of two brain imaging sessions
-- **Identifiability**: the difference between the fingerprint strength and the alikeness coefficient. Effectively a measure of distance between how similar an individual is to themselves compared to others.
+- **Differential identifiability**: the difference between the fingerprint strength and the alikeness coefficient. Effectively a measure of distance between how similar an individual is to themselves compared to others.
 
 ## Use cases and limitations
 
@@ -44,8 +44,9 @@ Generally, the conditions to use **fingerprinting** are:
 
 |Strength|Limitations|
 |:-------|:-----------|
-| o Easy-to-apply individual-level measure | x Hard to interpret (still unsure whether a strong correlation is good or bad)|
-| o Gives stable longitudinal measurements in cognitively unimpaired cohorts| x Hard to determine which regions contributes best to **fingerprinting**|
+| o Easy-to-apply individual-level <br> measure | x Hard to interpret (still unsure whether <br> a strong correlation is good or bad)|
+| o Gives stable longitudinal measurements <br> in cognitively unimpaired cohorts| x Hard to determine which regions <br> contributes best to **fingerprinting**|
+| o Can be done with whichever <br> combination of nodes you want | x Can be computationally demanding <br> if using many combinations |
 
 ```{warning}
 A major difficulty in interpreting **fingerprinting** measures is that very little research has indicated whether or not having high or low fingerprint measures can indicate meaningful behavioral/clinical/biomarker changes. Some research has showed that worse fingerprints were associated with mental health diagnoses[^Kaufmann_2017],[^Kaufmann_2018] and that lower brain volume was associated with lower **fingerprint strength**. [^Ousdal_2020],[^St_Onge_2023]
@@ -65,8 +66,10 @@ Here are some recommended parameters for using the script:
 | CPU | 1 core |
 | Memory | 4GB |
 
-```{hint} 
-**Compute Canada**
+Again, some future considerations will aim to make this more efficient.
+
+```{admonition} DRAC HPCs
+:class: important
 
 To mitigate the impact of the lack of parallelisation of individual fingerprinting scripts, in St-Onge et al. (2023), most of the operations listed were done on Compute Canada's Beluga cluster. This way, fingerprint scripts could be assigned as individualized jobs with they own CPU and memory, which strongly accelerated the calculations.
 
@@ -74,6 +77,8 @@ Example scripts to launch this type of job on Compute Canada will soon be made a
 ```
 
 ## References
+
+Below is the list of references discussed on this page.
 
 [^Mueller_2013]: Mueller et al. (2013). Neuron. [10.1016/j.neuron.2012.12.028](https://doi.org/10.1016/j.neuron.2012.12.028)
 [^Finn_2015]: Finn et al. (2015). Nat Neuro. [10.1038/nn.4135](https://doi.org/10.1038/nn.4135)
