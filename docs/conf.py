@@ -19,9 +19,12 @@ extensions = [
     "myst_nb",
     "autoapi.extension",
     "sphinx.ext.napoleon",
-    "sphinx.ext.viewcode"
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autosectionlabel"
 ]
 autoapi_dirs = ["../src"]
+autosectionlabel_prefix_document = True #Goes with ext. autosection label. Ensures targets
+# are unique
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -34,4 +37,5 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
-html_logo = "images/sihnpy_logo_small_no_bg.png"
+html_logo = "images/sihnpy_logo_small_no_bg.png" #Page logo for ReadTheDocs (200px max)
+html_favicon = "images/sihnpy_logo_small_no_bg.png" #Page icon browser logo
