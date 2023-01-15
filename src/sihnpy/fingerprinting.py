@@ -27,11 +27,11 @@ def import_fingerprint_ids(id_list):
     #First, import the IDs. Assume the IDs are correct and in the first column only
     if id_list.endswith('.csv'):
         id_df = pd.read_csv(f'{id_list}', usecols=[0], index_col=0)
-        id_ls = id_df.index.values.tolist() #Gives a list
+        id_ls = id_df.index.values.astype(str).tolist() #Gives a list
 
     elif id_list.endswith('.tsv'):
         id_df = pd.read_csv(f'{id_list}', sep='\t', usecols=[0], index_col=0,)
-        id_ls = id_df.index.values.tolist()
+        id_ls = id_df.index.values.astype(str).tolist()
 
     else:
         try:
@@ -40,7 +40,7 @@ def import_fingerprint_ids(id_list):
             #If there is column header or some/all IDs are not floats, we force to be a string
             id_arr = np.loadtxt(f'{id_list}', dtype='str', usecols=0)
         id_clean = id_arr[1:] #Assume there is a column header
-        id_ls = id_clean.tolist()
+        id_ls = id_clean.astype(str).tolist()
 
     return id_ls
 
@@ -97,7 +97,7 @@ def _norm_data(array_to_norm, norm=True):
         #By default, we apply a Fisher normalization.
         np.seterr(all='ignore') #Ignore "division by Zero Warning."
         z1_transf = np.arctanh(array_to_norm)
-        z1_norm = np.where(np.isinf(z1_transf), np.NaN, z1_transf)
+        z1_norm = np.where(np.isinf(z1_transf), 0, z1_transf)
     else:
         z1_norm = array_to_norm.copy()
 
@@ -272,29 +272,34 @@ class FingerprintMats:
             if verbose is True:
                 print(f"Working on participant {i + 1}: {sub}")
 
-            #Imports the right matrix file
+            #Imports the matrix for participant i (depending of where we are in loop)
             matrix_file_m1 = self._import_matrix(1, i)
             #Slice and return the flat array of values to correlate
+            #Removes the lower triangle and diagonal if using within-network nodes as it will be
+            # symetric and the diagonal will be "1"
             r1_flat = _slice_matrix(matrix_file_m1, nodes_index_within, nodes_index_between)
             #If necessary, we normalize the data using Fisher's transformation
             z1_data = _norm_data(r1_flat, norm=norm)
 
+            #For every participant "i", repeat the operations for participant "j" 
+            # (i.e., every participant) included
             for j in range(0, len(self.sub_final)):
                 matrix_file_m2 = self._import_matrix(2, j)
                 r2_flat = _slice_matrix(matrix_file_m2, nodes_index_within, nodes_index_between)
                 z2_data = _norm_data(r2_flat, norm=norm)
 
-                #Removing missing cells from calculation
+                #In case of missing value because of the normalization in "i" or "j", 
+                # we remove missing cells, otherwise Scipy will throw an error
                 missing_removed = ~np.logical_or(np.isnan(z1_data), np.isnan(z2_data))
                 z1_clean = np.compress(missing_removed, z1_data)
                 z2_clean = np.compress(missing_removed, z2_data)
 
                 #Correlate the array from the first subject to the array of the second subject
                 if corr_type == "Pearson":
-                    similar_matrix[i,j] = stats.pearsonr(z1_clean, z2_clean)[0]
+                    similar_matrix[i,j] = stats.pearsonr(z1_clean, z2_clean)[0] #Extract just the correlation
 
         #Fill lower triangle of the matrix for symmetry
-        similar_matrix = similar_matrix + np.triu(similar_matrix, k=1).T
+        similar_matrix = np.triu(similar_matrix, k=0) + np.triu(similar_matrix, k=1).T
 
         return similar_matrix
 
@@ -449,11 +454,11 @@ class FingerprintMats:
                     os.makedirs(dir_sub)
 
                 np.savetxt(f"{dir_sym}/similarity_matrix_{name}.csv", similar_matrix,
-                    delimiter=",")
+                    delimiter=",", fmt='%1.3f')
                 np.savetxt(f"{dir_sub}/subject_list_{name}.csv", self.id_ls,
                     delimiter="\n", fmt="%s")
             else:
                 np.savetxt(f"{path_fp_final}/similarity_matrix_{name}.csv", similar_matrix,
-                    delimiter=",")
+                    delimiter=",", fmt='%1.3f')
                 np.savetxt(f"{path_fp_final}/subject_list_{name}.csv", self.id_ls,
                     delimiter="\n", fmt="%s")
