@@ -1,9 +1,9 @@
 from importlib import resources
 import pandas as pd
 
-def pad_conp_conn_minimal_dataset():
+def pad_fp_input():
     """ Loads paths to functional connectivity data from a subset of 15 participants of the
-    Prevent-AD open data.
+    Prevent-AD open data ready for the fingerprinting analysis.
 
     The dataset contains functional connectivity matrices from three tasks:
     resting state, memory encoding and memory retrieval. 
@@ -26,7 +26,7 @@ def pad_conp_conn_minimal_dataset():
 
     #Import the demographic data in a pandas DF
     with resources.files('sihnpy.data.pad_conp_minimal') as f:
-        participants = pd.read_csv(f'{str(f)}/participants.tsv', delimiter="\t")\
-            .set_index("participant_id")
+        path_participant_file = f'{str(f)}/participants.tsv'
+        participants = pd.read_csv(path_participant_file, delimiter="\t")
 
-    return participants, dict_paths
+    return participants, path_participant_file, dict_paths
