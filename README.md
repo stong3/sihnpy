@@ -1,9 +1,10 @@
-# `sihnpy`: Study of inter-individual heterogeneity of neuroimaging in Python
-Hi! Welcome to `sinhpy`!
+# `sihnpy`: *S*tudy of *I*nter-individual *H*eterogeneity of *N*euroimaging in *Py*thon
 
 ![sihnpy logo](docs/images/sihnpy_logo_large_no_bg.png)
 
-My goal in creating `sinhpy`'s goal was to provide researchers with an easy-to-use, one-stop-shop for simple methods and analyses aimed at studying inter-individual differences in neuroimaging. 
+Hi! Welcome to `sinhpy`!
+
+My goal in creating `sinhpy` goal was to provide researchers with an easy-to-use, one-stop-shop for simple methods aimed at studying inter-individual differences in neuroimaging. That said, many of the methods can also be applied to other types of large datasets with a lot of information on individual participants!
 
 Over the past few years, studies using multiple brain imaging modalities have highlighted that individuals in homogenous groups tend to show considerable inter-individual differences. This leads to several challenges:
 1) Comparing groups considered to be relatively homogenous may lead to hard-to-reproduce results as individual variability will not be the same from cohort to cohort
