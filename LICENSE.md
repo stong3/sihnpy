@@ -65,4 +65,4 @@ Clauses with asterisks are copied integrally from the original data usage
 agreement. Users wishing to use the Prevent-AD data within the Software 
 agree to use the data for educational purposes only. Users wishing to use
 the Prevent-AD data for research purposes must register on the portal before
-doing so: https://openpreventad.loris.ca/login/request-account/
+doing so: [https://openpreventad.loris.ca/login/request-account/](https://openpreventad.loris.ca/login/request-account/)
