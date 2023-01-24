@@ -13,13 +13,13 @@ That's not all. Even when we take a group of individuals that are traditionally 
 Neuroscientist by training, most of the tools I develop in `sihnpy` are neuroimaging-focused. That said, with a few exceptions, the tools should also be useable in other domains. Also, I am not a computer scientist, but I really love coding and I am eagerly learning as I develop `sihnpy`. If something is not working right, feel free to [open an issue](https://github.com/stong3/sihnpy/issues) to let me know or to discuss how I can improve `sihnpy`.
 
 ## Authors
-   - Frédéric St-Onge - MSc - PhD candidate at McGill University
-   - Gabriel St-Onge - MSc
+- Frédéric St-Onge - MSc - PhD candidate at McGill University
+- Gabriel St-Onge - MSc
 
 If you use `sinhpy` in your academic work (or well, any other work where you would need such a package), please consider citing the paper detailing the development of the first few modules of this package and/or citing the package (example below in APA form):
 
-   - St-Onge F, Javanray M, Pichet Binette A, Strikwerda-Brown C, Remz J, Spreng RN, Shafiei G, Misic B, Vachon-Presseau E, Villeneuve S. (2023) Functional connectome fingerprinting across the lifespan. Under review.
-   - St-Onge F & St-Onge G (2022). sihnpy: Study of Inter-individual Heterogeneity of Neuroimaging in Python. v[VERSION HERE], URL: https://github.com/stong3/sihnpy
+- St-Onge F, Javanray M, Pichet Binette A, Strikwerda-Brown C, Remz J, Spreng RN, Shafiei G, Misic B, Vachon-Presseau E, Villeneuve S. (2023) Functional connectome fingerprinting across the lifespan. Under review.
+- St-Onge F & St-Onge G (2022). sihnpy: Study of Inter-individual Heterogeneity of Neuroimaging in Python. v[VERSION HERE], URL: https://github.com/stong3/sihnpy
 
 ## Installation
 
