@@ -10,7 +10,7 @@ import pandas as pd
 from scipy import stats
 
 def import_fingerprint_ids(id_list):
-    """Function importing the list of IDs to analyse. We assume that the list of IDs are stored
+    """Function importing the list of IDs to analyze. We assume that the list of IDs are stored
     in either a .csv or .tsv file, or a text file with 1 ID per line.
 
     Parameters
@@ -49,13 +49,13 @@ def _slice_matrix(matrix_file, nodes_index_within, nodes_index_between=None):
 
     Parameters
     ----------
+    matrix_file : numpy.array
+        Array for a given participant comprising all the functional connectivity nodes.
     nodes_index_between : list
         List of nodes to include in the fingerprinting calculation. If not interested in looking
         at between-network, the function defaults to calculating within-network. Defaults to None.
     nodes_index_within : list
         List of nodes to include in the fingerprinting calculation.
-    matrix_file : numpy.array
-        Array for a given participant comprising all the functional connectivity nodes.
 
     Returns
     -------
@@ -166,8 +166,28 @@ class FingerprintMats:
 
         Parameters
         ----------
+        files_m1 : list of str
+            List of files for the first modality
+        files_m2 : list of str
+            List of files for the second modality
         verbose : bool, optional
-            Whether to print statements to the console or not, by default True
+            Whether or not we want an explicit description of participants included, 
+            by default True
+
+        Returns
+        -------
+        list
+            Returns three lists: participant ids included in the end, and the list
+            of their filenames
+
+        Raises
+        ------
+        SystemExit
+            If no subject ID is matched to any files, exit.
+        SystemExit
+            If files are duplicated after matching with subject list, exit.
+        SystemExit
+            If files are duplicated after matching with subject list, exit.
         """
         if verbose is True:
             print(f'We have {len(self.id_ls)} subjects in the list.')
@@ -193,7 +213,7 @@ class FingerprintMats:
         if len(final_m1) != len(set(final_m1)):
             raise SystemExit("ERROR: Files of modality 1 are duplicated")
         if len(final_m2) != len(set(final_m2)):
-            raise SystemExit("ERROR: Files of modality 1 are duplicated")
+            raise SystemExit("ERROR: Files of modality 2 are duplicated")
 
         if verbose is True:
             print(f"We have in total {len(sub_1)} participants in modality 1 & {len(sub_2)} " +
@@ -251,14 +271,25 @@ class FingerprintMats:
             List of integers representing the number of nodes to select. If nodes_index_between is
             not given, we assume we want to extract a symmetric sub-matrix (i.e., within-network).
         nodes_index_between : list of int, optional
-            If requested, the matrix fed to the fingerprint can be asymetric, which is the case
+            If requested, the matrix fed to the fingerprint can be asymmetric, which is the case
             when wanting to do between-network fingerprinting, by default None
         norm : bool, optional
-            _description_, by default True
+            Whether or not to Fisher normalize the data before fingerprinting, by default True
         corr_type : str, optional
-            _description_, by default "Pearson"
+            Which correlation measure to use for generating fingerprinting, by default "Pearson".
+            Options include: ["Pearson"]
         verbose : bool, optional
-            _description_, by default True
+            Whether or not to print a message of which participants we are doing, by default True
+
+        Returns
+        -------
+        numpy.array
+            Returns a similarity matrix of the correlations within and between participants.
+
+        Raises
+        ------
+        SystemExit
+            If the FingerprintMats step was skipped, we fail this function.
         """
         if self.sub_final is None:
             raise SystemExit("ERROR: Did you instantiate the FingerprintMats class and/or \
@@ -307,6 +338,11 @@ class FingerprintMats:
         """Internal function computing the fingerprint identification accuracy,
         (number of correct identifications).
 
+        Parameters
+        -------
+        similar_matrix : numpy.array
+            Similarity matrix from `fingerprint_mats` function
+
         Returns
         -------
         numpy.array
@@ -330,6 +366,11 @@ class FingerprintMats:
         """Internal function computing the self-identifiability (within-individual correlation).
         This is defined as the diagonal (within-individual correlations) of the similarity matrix.
 
+        Parameters
+        -------
+        similar_matrix : numpy.array
+            Similarity matrix from `fingerprint_mats` function
+
         Returns
         -------
         numpy.array
@@ -343,6 +384,11 @@ class FingerprintMats:
         """Internal function computing the others-identifiability (between-individual correlation).
         This is defined as the average of the off-diagonal elements (row-wise) of the similarity
         matrix.
+
+        Parameters
+        -------
+        similar_matrix : numpy.array
+            Similarity matrix from `fingerprint_mats` function
 
         Returns
         -------
@@ -383,6 +429,8 @@ class FingerprintMats:
 
         Parameters
         ----------
+        similar_matrix : numpy.array
+            Similarity matrix from `fingerprint_mats` function
         name : str
             String to add to the variables. This is so the user can differentiate the different
             runs of the fingerprinting if multiple are used.
@@ -423,6 +471,10 @@ class FingerprintMats:
         ----------
         output_path : str
             Path where all the fingerprinting output should go.
+        coef_data : pandas.Dataframe
+            Dataframe containing the fingerprinting coefficients calculated before.
+        similar_matrix : numpy.array
+            Similarity matrix containing the fingerprinting coefficients
         name : str
             String to add to the file names
         out_full : bool, optional
