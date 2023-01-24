@@ -16,7 +16,7 @@ def import_fingerprint_ids(id_list):
     Parameters
     ----------
     id_list : str
-        Path on the local computer to the file where the IDs are stored.
+        Path on the local computer to file where the IDs are stored.
 
     Returns
     -------
