@@ -23,7 +23,7 @@ pytest-cov = "^4.0.0"
 python-semantic-release = "^7.33.0"
 
 [tool.semantic_release]
-version_toml = pyproject.toml:tool.poetry.version # corrected based on 7.33.0 documentation 
+version_toml = "pyproject.toml:tool.poetry.version" # corrected based on 7.33.0 documentation 
 branch = "main"                             # branch to make releases of
 changelog_file = "CHANGELOG.md"             # changelog file
 build_command = "poetry build"              # build dists
