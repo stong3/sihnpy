@@ -14,7 +14,7 @@ Neuroscientist by training, most of the tools I develop in `sihnpy` are neuroima
 
 ## Authors
 * Frédéric St-Onge - MSc - PhD candidate at McGill University
-* Gabriel St-Onge - MSc - Research Scientist for the Department of National Defence of Canada
+* Gabriel St-Onge - MSc
 
 If you use `sinhpy` in your academic work (or well, any other work where you would need such a package), please consider citing the paper detailing the development of the first few modules of this package and/or citing the package (example below in APA form):
 
