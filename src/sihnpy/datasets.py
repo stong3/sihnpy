@@ -30,3 +30,19 @@ def pad_fp_input():
         participants = pd.read_csv(path_participant_file, delimiter="\t")
 
     return participants, path_participant_file, dict_paths
+
+def pad_spex_input():
+    """ Loads the spreadsheets for the simulated tau-PET data for the 308 PREVENT-AD participants
+    available in the Open dataset. This data is used to test and practice the spatial extent
+    module.
+
+    Note that all tau-PET data is **simulated** (i.e., was randomly generated and assigned to a
+    participant). As such, the data should only be used for educational purposes.
+    """
+    
+    with resources.files('sihnpy.data.spatial_extent') as f:
+        tau_data = pd.read_csv(f'{str(f)}/conp_simulated_tau-PET_data.csv')
+        regional_averages = pd.read_csv(f'{str(f)}/regional_averages.csv')
+        regional_thresholds = pd.read_csv(f'{str(f)}/regional_thresholds.csv')
+
+    return tau_data, regional_averages, regional_thresholds
