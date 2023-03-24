@@ -8,4 +8,5 @@ Note that `sihnpy` provides data to practice using the spatial extent module. Wh
 
 ```{toctree}
 spex_intro.md
+spex_module.ipynb
 ```
