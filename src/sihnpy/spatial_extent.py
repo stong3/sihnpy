@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import numpy as np
 from sklearn.mixture import GaussianMixture
@@ -71,11 +70,11 @@ def gmm_measures(cleaned_data, gm_objects, fix=False):
     """
 
     tmp_df = cleaned_data.copy() #To avoid modifying the input.
-    final_gm_dict = gm_objects.copy() #To avoid modifying the input
+    final_gm_estimations = gm_objects.copy() #To avoid modifying the input
     rem_cols = [] #For fixing if needed
     gmm_measures = {} #To store the GMM averages and SDs for histograms
 
-    for col, gm_obj in final_gm_dict.items():
+    for col, gm_obj in final_gm_estimations.items():
         #Return averages and SDs of the components
         gmm_measures[col] = _gmm_avg_sd(gm_obj)
 
@@ -84,17 +83,18 @@ def gmm_measures(cleaned_data, gm_objects, fix=False):
             print(f"Average of first component of {col} is higher than second component.")
 
             if fix is True:
+                print(f'- Fix is true, removing {col}')
                 rem_cols.append(col)
 
     #Final fixes, if the user decides to remove a column, remove from everything
     final_data = tmp_df.drop(labels=rem_cols, axis=1)
     for key in rem_cols:
-        del final_gm_dict[key]
+        del final_gm_estimations[key]
         del gmm_measures[key]
 
-    return final_data, final_gm_dict, gmm_measures
+    return final_data, final_gm_estimations, gmm_measures
 
-def gmm_probs(final_data, final_gm_dict, fix=False):
+def gmm_probs(final_data, final_gm_estimations, fix=False):
     """ Function extracting the probability to be in the "second" distribution (high abnormal values)
     """
 
@@ -102,16 +102,19 @@ def gmm_probs(final_data, final_gm_dict, fix=False):
 
     for col in final_data:
         sorted_df = final_data.sort_values(by=col) #Sort input index first so output matches
-        probs = final_gm_dict[col]\
+        probs = final_gm_estimations[col]\
             .predict_proba(sorted_df[col].to_numpy().reshape(-1,1)) #Find probability of each cluster from the GMM
 
-        if final_gm_dict[col].means_[1][0] < final_gm_dict[col].means_[0][0]:
+        if final_gm_estimations[col].means_[1][0] < final_gm_estimations[col].means_[0][0]:
             print(f'Means for components of {col} are inverted.')
             if fix is True:
                 print(f'Inverting the components...')
                 tmp_df = pd.DataFrame(data=probs[:,0], 
                         index=sorted_df.index, columns=[col]) 
                 #Extract and store the probability of cluster 1 when inversion issue.
+            else:
+                tmp_df = pd.DataFrame(data=probs[:,1], 
+                        index=sorted_df.index, columns=[col]) #Extract and store the probability of cluster 2
         else:
             #In any other case (no fixing, or fixing but components not inverted...)
             #Grab the probabilities of the second cluster
@@ -333,7 +336,7 @@ def apply_index(data_to_apply_clean, dict_masks):
     for threshold_val, masks in dict_masks.items():
         spex_metrics[f'spatial_extent_{threshold_val}'] = masks.sum(axis=1) #Sum the rows to get spatial extent index
 
-    if len(spex_metrics) > 1:
+    if len(spex_metrics.columns) > 1:
         spex_metrics[f'spatial_extent_sum_all'] = spex_metrics.sum(axis=1)
 
     return spex_metrics
