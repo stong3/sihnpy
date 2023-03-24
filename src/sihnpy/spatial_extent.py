@@ -13,7 +13,7 @@ def gmm_estimation(data_to_estimate, fix=False):
     """
 
     data = data_to_estimate.copy()
-    gm_objects = {}
+    gm_estimations = {}
     col_rem_id = []
 
     for col in data_to_estimate:
@@ -27,10 +27,10 @@ def gmm_estimation(data_to_estimate, fix=False):
         gm1 = GaussianMixture(n_components=1, random_state=667).fit(roi_suvr)
         gm2 = GaussianMixture(n_components=2, random_state=667).fit(roi_suvr)
 
-        print(f"1-component: {gm1.bic(roi_suvr)} | 2-components: {gm2.bic(roi_suvr)} ")
+        print(f"1-component: BIC = {gm1.bic(roi_suvr)} | 2-components: BIC = {gm2.bic(roi_suvr)} ")
 
         #Store GMM estimation object
-        gm_objects[col] = gm2
+        gm_estimations[col] = gm2
 
         #In the case that 1 distribution works better, here are the options
         if gm1.bic(roi_suvr) <= gm2.bic(roi_suvr):
@@ -40,14 +40,14 @@ def gmm_estimation(data_to_estimate, fix=False):
             if fix is True:
                 print(f"-Fix is True: Region {col} will be removed from further calculation")
                 col_rem_id.append(col)
-                del gm_objects[col]
+                del gm_estimations[col]
             else:
                 print(f"-Fix is False: Region {col} will be kept in the data")
 
     #Remove columns, if errors in estimation AND fix is true
     clean_data = data.drop(col_rem_id, axis=1)
 
-    return gm_objects, clean_data
+    return gm_estimations, clean_data
 
 def _gmm_avg_sd(gm_obj):
     """ Quick function extracting and returning the average and SD values of the two components.

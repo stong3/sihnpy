@@ -41,8 +41,8 @@ def pad_spex_input():
     """
     
     with resources.files('sihnpy.data.spatial_extent') as f:
-        tau_data = pd.read_csv(f'{str(f)}/conp_simulated_tau-PET_data.csv')
-        regional_averages = pd.read_csv(f'{str(f)}/regional_averages.csv')
-        regional_thresholds = pd.read_csv(f'{str(f)}/regional_thresholds.csv')
+        tau_data = pd.read_csv(f'{str(f)}/conp_simulated_tau-PET_data.csv').set_index('participant_id')
+        regional_averages = pd.read_csv(f'{str(f)}/regional_averages.csv').set_index("region")
+        regional_thresholds = pd.read_csv(f'{str(f)}/regional_thresholds.csv').set_index('region')
 
-    return tau_data, regional_averages, regional_thresholds
+    return tau_data, regional_thresholds, regional_averages,
