@@ -32,6 +32,30 @@ def data_gmm_probs(data_gmm_measures):
     
     return final_data, final_gm_estimations, gmm_measures
 
+@pytest.fixture
+def data_gmm_histogram(data_gmm_probs):
+    """ Define data necessary to test the gmm_histogram function. Basically, we just need
+    the probabilities as we already calculate the rest.
+    """
+
+    final_data, final_gm_estimations, gmm_measures = data_gmm_probs
+
+    probs_df = spex.gmm_probs(final_data=final_data, final_gm_estimations=final_gm_estimations, 
+        fix=False)
+
+    return final_data, gmm_measures, probs_df
+
+@pytest.fixture
+def data_apply_clean(data_gmm_histogram):
+    """ Define the data necessary to test the apply_clean function.
+    """
+    final_data, gmm_measures, probs_df = data_gmm_histogram
+
+    thresh_df_one = spex.gmm_threshold_deriv(final_data=final_data, probs_df=probs_df, prob_threshs=[0.5], improb=1.0)
+    thresh_df_four = spex.gmm_threshold_deriv(final_data=final_data, probs_df=probs_df, prob_threshs=[0.5], improb=1.0)
+
+    return final_data, thresh_df_one, thresh_df_four
+
 def test_gmm_estimation_no_fix(data_gmm_estimation):
     """ Function to test the estimation of the GMM models done in sihnpy.
     """
@@ -76,7 +100,6 @@ def test_gmm_measures_no_fix(data_gmm_measures):
     #Check values of averages are the same
     assert math.isclose(gmm_measures['CTX_LH_ENTORHINAL_SUVR']['mean_comp1'], 1.107276418020098)
 
-
 def test_gmm_measures_fix(data_gmm_measures):
     """ Test that the fix of the gmm_measures function will yield the properly fixed output.
     """
@@ -114,3 +137,62 @@ def test_gmm_probs_fix(data_gmm_probs):
     #Check the one column where we know there is an inversion, to make sure we grab the right
     # inverted value
     assert math.isclose(probs_df.loc['sub-6788676', "CTX_RH_PRECENTRAL_SUVR"], 0.999334918942800)
+
+def test_gmm_histograms(data_gmm_histogram):
+    """ Test that the histograms generate the right number of graphs for each category.
+    """
+    final_data, gmm_measures, probs_df = data_gmm_histogram
+
+    dict_fig_density = spex.gmm_histograms(final_data=final_data, gmm_measures=gmm_measures, probs_df=probs_df, type="density")
+    dict_fig_raw = spex.gmm_histograms(final_data=final_data, gmm_measures=gmm_measures, probs_df=probs_df, type="raw")
+    dict_fig_probability = spex.gmm_histograms(final_data=final_data, gmm_measures=gmm_measures, probs_df=probs_df, type="probs")
+    dict_fig_all = spex.gmm_histograms(final_data=final_data, gmm_measures=gmm_measures, probs_df=probs_df, type="all")
+
+    assert len(dict_fig_density) == 15, "Wrong number of density graphs"
+    assert len(dict_fig_raw) == 15, "Wrong number of raw data graphs"
+    assert len(dict_fig_probability) == 15, "Wrong number of probability graphs"
+    assert len(dict_fig_all) == 45, "Wrong number of graphs (all)"
+
+def test_gmm_threshold_one_deriv_no_fix(data_gmm_histogram):
+    """ Test of the threshold derivation, not fixing for improbability
+    """
+    final_data, gmm_measures, probs_df = data_gmm_histogram #Unpack data
+
+    thresh_df = spex.gmm_threshold_deriv(final_data=final_data, probs_df=probs_df, prob_threshs=[0.5])
+
+    assert len(thresh_df) == 15, "Wrong number of regions in the threshold data"
+    assert len(thresh_df.columns) == 1, "Wrong number of thresholds (should be 1)"
+    assert math.isclose(thresh_df.loc['CTX_LH_ENTORHINAL_SUVR', "thresh_0.5"], 1.338934852198972), "Threshold for 0.5 (left entorhinal)doesn't match expected value"
+    assert math.isclose(thresh_df.loc['CTX_LH_INFERIORTEMPORAL_SUVR', "thresh_0.5"], 0.762054823679434), "Threshold for 0.5 (left inferior temporal) doesn't return the 'unfixed' value"
+
+def test_gmm_threshold_four_deriv_no_fix(data_gmm_histogram):
+    """ Test of the threshold derivation, changing the number of thresholds
+    """
+    final_data, gmm_measures, probs_df = data_gmm_histogram #Unpack data
+
+    thresh_df = spex.gmm_threshold_deriv(final_data=final_data, probs_df=probs_df, prob_threshs=[0.5, 0.7, 0.8, 0.9])
+
+    assert len(thresh_df) == 15, "Wrong number of regions in the threshold data"
+    assert len(thresh_df.columns) == 4, "Wrong number of thresholds (should be 1)"
+
+def test_gmm_threshold_deriv_fix(data_gmm_histogram):
+    """ Test of the threshold derivation, fixing for improbability
+    """
+    final_data, gmm_measures, probs_df = data_gmm_histogram #Unpack data
+
+    thresh_df = spex.gmm_threshold_deriv(final_data=final_data, probs_df=probs_df, prob_threshs=[0.5], improb=1.0)
+
+    assert math.isclose(thresh_df.loc['CTX_LH_INFERIORTEMPORAL_SUVR', "thresh_0.5"], 1.5228336686419313), "Threshold for 0.5 (left inferior temporal) is not giving expected value after fix"
+
+def test_apply_clean(data_apply_clean):
+    """ Test of the apply clean function.
+    """
+    final_data, thresh_df_one, thresh_df_four = data_apply_clean
+
+    data_to_apply_one, thresh_data_one = spex.apply_clean(data_to_apply=final_data, thresh_data=thresh_df_one)
+    data_to_apply_four, thresh_data_four = spex.apply_clean(data_to_apply=final_data, thresh_data=thresh_df_four)
+
+    assert len(thresh_data_one) != len(data_to_apply_one.columns), "Wrong number of regions after cleaning (1 thresh)"
+    assert len(thresh_data_four) != len(data_to_apply_four.columns), "Wrong number of regions after cleaning (4 thresh)"
+
+    assert thresh_data_one.index.values == data_to_apply_one.columns.values, "Regions' order don't match between threshold and data"
