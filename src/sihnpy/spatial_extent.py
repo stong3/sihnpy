@@ -173,14 +173,17 @@ def gmm_histograms(final_data, gmm_measures, probs_df, dist_2=True, type="densit
             hist_dens = _gmm_density_histogram(final_data[col], gmm_measures[col], col=col,
                                                 dist_2=dist_2)
             dict_fig[f'hist_density_{col}'] = hist_dens
+            plt.close(hist_dens) #Close figure window to reduce memory usage
 
         elif type == "raw":
             hist_raw = _gmm_raw_histogram(final_data[col], col=col)
             dict_fig[f'hist_raw_{col}'] = hist_raw
+            plt.close(hist_raw)
 
         elif type == "probs":
             hist_probs = _gmm_raw_histogram(probs_df[col], col=col)
             dict_fig[f'hist_probs_{col}'] = hist_probs
+            plt.close(hist_probs)
 
         elif type == "all":
             hist_dens = _gmm_density_histogram(final_data[col], gmm_measures[col], 
@@ -192,9 +195,13 @@ def gmm_histograms(final_data, gmm_measures, probs_df, dist_2=True, type="densit
             dict_fig[f'hist_raw_{col}'] = hist_raw
             dict_fig[f'hist_probs_{col}'] = hist_probs
 
+            plt.close(hist_dens)
+            plt.close(hist_raw)
+            plt.close(hist_probs)
+
     return dict_fig
 
-def gmm_threshold_deriv(final_data, probs_df, prob_threshs, improb):
+def gmm_threshold_deriv(final_data, probs_df, prob_threshs, improb=None):
     """ Function deriving the actual thresholds based on the probabilities of belonging to the high values group.
 
     NOTE: Depending on the threshold value used, the probability of belonging to a given cluster
@@ -270,35 +277,38 @@ def gmm_threshold_deriv(final_data, probs_df, prob_threshs, improb):
 def export_histograms(hist_dict_fig, output_path, name):
     """ Exporting the histograms to file, if requested by user
     """
-
     for type_hist, hist in hist_dict_fig.items():
         hist.savefig(f'{output_path}/{type_hist}_{name}.png', dpi=500)
 
-def export_thresholds(thresh_df, output_path, name):
-    """ Exporting thresholds to file, if requested by user
-    """
-
-    thresh_df.to_csv(f"{output_path}/thresholds_{name}.csv")
-
-def export_probs_suvrs(final_data, probs_data, output_path, name):
+def export_threshs(final_data, probs_data, thresh_df, output_path, name):
     """ Quick function exporting the final data used and the probability data
     """
-    final_data.to_csv(f"{output_path}/final_data_derived_{output_path}_{name}.csv")
-    probs_data.to_csv(f"{output_path}/probabilities_clust2_{output_path}_{name}.csv")
+    final_data.to_csv(f"{output_path}/final_data_derived_{name}.csv")
+    probs_data.to_csv(f"{output_path}/probabilities_clust2_{name}.csv")
+    thresh_df.to_csv(f"{output_path}/thresholds_{name}.csv")
 
 # Spatial extent - Threshold application
-def apply_clean(data_to_apply, index_name, thresh_data):
+def apply_clean(data_to_apply, thresh_data, index_name=None):
     """ Function doing basic cleaning on the spatial extent and thresholds. Basically just sorts
     the rows and make sure they match between the thresholds and data to apply.
     """
 
-    data_to_apply_clean = data_to_apply\
-        .set_index(index_name)\
-        .filter(items=thresh_data.index, axis=1)\
-        .sort_index(axis=1)
+    if index_name is not None:
+        data_to_apply_clean = data_to_apply\
+            .set_index(index_name)\
+            .filter(items=thresh_data.index, axis=1)\
+            .sort_index(axis=1)
+    else:
+        data_to_apply_clean = data_to_apply\
+            .filter(items=thresh_data.index, axis=1)\
+            .sort_index(axis=1)
 
     thresh_data_clean = thresh_data\
+        .filter(items=data_to_apply_clean.columns, axis=0)\
         .sort_index(axis=0)
+
+    if len(thresh_data_clean) != len(data_to_apply_clean.columns):
+        return f"Error: Rows in the threshold data ({len(thresh_data_clean)}) doesn't equal to the columns in the data to apply ({len(data_to_apply.columns)})"
 
     return data_to_apply_clean, thresh_data_clean
 
@@ -316,7 +326,7 @@ def apply_masks(data_to_apply_clean, thresh_data_clean):
         #For each region in the DF we want to apply the thresholds to
         for region in data_to_apply_clean:
             #If the region has a threshold available
-            if region in data_to_apply_clean.index:
+            if region in thresh_data_clean.index:
                 #Apply the threshold, where 1 is above or equal to threshold
                 tmp_df[region] = np.where(data_to_apply_clean[region]
                                 >= thresh_data_clean.loc[region, threshold], 1, 0)
@@ -352,8 +362,20 @@ def apply_ind_mask(data_to_apply_clean, dict_masks):
     """
 
     spex_ind_masks = {}
+    dict_masks_copy = dict_masks.copy()
+    tmp_data = pd.DataFrame()
 
-    for threshold_vals, masks in dict_masks.items():
+    #If more than one mask, create a sum of masks
+    if len(dict_masks) > 1:
+        for masks in dict_masks.values():
+            tmp_data = tmp_data.add(masks, fill_value=0) 
+            #If original value was missing, the result will be missing. We force 0 to be everywhere
+
+        #Store that new mask in the dictionary for output
+        dict_masks_copy['mask_spatial_extent_sum_all'] = tmp_data
+
+    #For each mask, compute the individualized mask
+    for threshold_vals, masks in dict_masks_copy.items():
         spex_ind_masks[threshold_vals] = data_to_apply_clean.multiply(masks)\
             .replace(to_replace={0:np.NaN})
 
