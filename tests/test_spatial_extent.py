@@ -52,9 +52,31 @@ def data_apply_clean(data_gmm_histogram):
     final_data, gmm_measures, probs_df = data_gmm_histogram
 
     thresh_df_one = spex.gmm_threshold_deriv(final_data=final_data, probs_df=probs_df, prob_threshs=[0.5], improb=1.0)
-    thresh_df_four = spex.gmm_threshold_deriv(final_data=final_data, probs_df=probs_df, prob_threshs=[0.5], improb=1.0)
+    thresh_df_four = spex.gmm_threshold_deriv(final_data=final_data, probs_df=probs_df, prob_threshs=[0.5, 0.6, 0.7, 0.8], improb=1.0)
 
     return final_data, thresh_df_one, thresh_df_four
+
+@pytest.fixture
+def data_apply_masks(data_apply_clean):
+    """ Define the data necessary to test the apply_masks function.
+    """
+    final_data, thresh_df_one, thresh_df_four = data_apply_clean
+
+    data_to_apply_one, thresh_data_one = spex.apply_clean(data_to_apply=final_data, thresh_data=thresh_df_one)
+    data_to_apply_four, thresh_data_four = spex.apply_clean(data_to_apply=final_data, thresh_data=thresh_df_four)
+
+    return data_to_apply_one, thresh_data_one, thresh_data_four
+
+@pytest.fixture
+def data_index(data_apply_masks):
+    """ Define the data to test the apply_index and apply_ind_mask functions
+    """
+    data_to_apply, thresh_data_one, thresh_data_four = data_apply_masks
+
+    dict_masks_one = spex.apply_masks(data_to_apply_clean=data_to_apply, thresh_data_clean=thresh_data_one)
+    dict_masks_four = spex.apply_masks(data_to_apply_clean=data_to_apply, thresh_data_clean=thresh_data_four)
+
+    return data_to_apply, dict_masks_one, dict_masks_four
 
 def test_gmm_estimation_no_fix(data_gmm_estimation):
     """ Function to test the estimation of the GMM models done in sihnpy.
@@ -192,7 +214,44 @@ def test_apply_clean(data_apply_clean):
     data_to_apply_one, thresh_data_one = spex.apply_clean(data_to_apply=final_data, thresh_data=thresh_df_one)
     data_to_apply_four, thresh_data_four = spex.apply_clean(data_to_apply=final_data, thresh_data=thresh_df_four)
 
-    assert len(thresh_data_one) != len(data_to_apply_one.columns), "Wrong number of regions after cleaning (1 thresh)"
-    assert len(thresh_data_four) != len(data_to_apply_four.columns), "Wrong number of regions after cleaning (4 thresh)"
+    assert len(thresh_data_one.index.values) == len(data_to_apply_one.columns.values), "Wrong number of regions after cleaning (1 thresh)"
+    assert len(thresh_data_four.index.values) == len(data_to_apply_four.columns.values), "Wrong number of regions after cleaning (4 thresh)"
 
-    assert thresh_data_one.index.values == data_to_apply_one.columns.values, "Regions' order don't match between threshold and data"
+    assert np.array_equal(thresh_data_one.index.values, data_to_apply_one.columns.values) is True, "Regions' order don't match between threshold and data"
+
+def test_apply_masks(data_apply_masks):
+    """ Test of the apply_mask function.
+    """
+
+    data_to_apply_clean, thresh_df_one, thresh_df_four = data_apply_masks
+
+    dict_mask_one = spex.apply_masks(data_to_apply_clean=data_to_apply_clean, thresh_data_clean=thresh_df_one)
+    dict_mask_four = spex.apply_masks(data_to_apply_clean=data_to_apply_clean, thresh_data_clean=thresh_df_four)
+
+    assert dict_mask_one['thresh_0.5'].shape == data_to_apply_clean.shape, "Shape of the original data and the binary mask doesn't match"
+    assert (dict_mask_one['thresh_0.5']['CTX_LH_AMYGDALA_SUVR']).sum() == ((data_to_apply_clean['CTX_LH_AMYGDALA_SUVR'] >= 1.429867).sum()), "Number of abnormal doesn't match between mask and expected from data"
+    assert len(dict_mask_four) == 4, "Dictionary of 4 thresholds doesn't have 4 masks"
+
+def test_apply_index(data_index):
+    """ Test of the apply_index function
+    """
+    data_to_apply, dict_masks_one, dict_masks_four = data_index
+
+    spex_metrics_one = spex.apply_index(data_to_apply_clean=data_to_apply, dict_masks=dict_masks_one)
+    spex_metrics_four = spex.apply_index(data_to_apply_clean=data_to_apply, dict_masks=dict_masks_four)
+
+    assert np.array_equal(dict_masks_one['thresh_0.5'].index.values, spex_metrics_one.index.values), "Mask indices doesn't match the spatial extent dataframe index"
+    assert len(spex_metrics_one.columns) == 1, "Wrong number of columns for spatial extent index (should be 1)"
+    assert len(spex_metrics_four.columns) == 5, "Wrong number of columns for spatial extent index (should be 5)"
+
+def test_apply_ind_mask(data_index):
+    """ Test of the apply_ind_mask function
+    """
+    data_to_apply, dict_masks_one, dict_masks_four = data_index
+
+    spex_ind_masks_one = spex.apply_ind_mask(data_to_apply_clean=data_to_apply, dict_masks=dict_masks_one)
+    spex_ind_masks_four = spex.apply_ind_mask(data_to_apply_clean=data_to_apply, dict_masks=dict_masks_four)
+
+    assert len(spex_ind_masks_one) == 1, "Wrong number of individualized masks (should be 1)"
+    assert len(spex_ind_masks_four) == 5, "Wrong number of individualized masks (should be 5)"
+    assert (data_to_apply.loc['sub-6261459', "CTX_LH_AMYGDALA_SUVR"]) == (spex_ind_masks_four['thresh_0.5'].loc['sub-6261459', "CTX_LH_AMYGDALA_SUVR"]), "Wrong value observed for sub-6261459"
