@@ -29,12 +29,15 @@ You can install the most recent version of `sinhpy` using pip:
 $ pip install sihnpy
 ```
 
+Head to our Github page to take a look at the code more closely: https://github.com/stong3/sihnpy
+
 ## Usage
 
 The package is separated in distinct modules with their own rationale, explanation, use cases and limitations. Please visit the documentation for specific information on each module. Below is a quick summary of each available module:
 
    - Datasets: Contains a subset of the Prevent-AD Open data which can be used to test functionalities of the package
    - Fingerprinting: Computes individual-specific signatures of variables and the related metrics
+   - Spatial extent: Computes individual-specific measures of how "abnormal" regions across the brain are compared to pre-computed thresholds
 
 While I try my best to simplify the concepts as much as possible, note that **an understanding of Python's basics is probably necessary** to run most of the modules.
 
