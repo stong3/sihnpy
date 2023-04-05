@@ -8,6 +8,7 @@
 
 0.pad_data/index.md
 1.fingerprinting/index.md
+2.spex/index.md
 license.md
 changelog.md
 contributing.md

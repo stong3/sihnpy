@@ -1,6 +1,6 @@
-# Downloading Prevent-AD data
+# Downloading PREVENT-AD data
 
-When it comes to great quality data, the Prevent-AD cohort has got your back. Multi-modal imaging? Yearly visits up to four years? What more can one neuroimager ask for?
+When it comes to great quality data, the PREVENT-AD cohort has got your back. Multi-modal imaging? Yearly visits up to four years? What more can one neuroimager ask for?
 
 The main issue comes down to... well... actually downloading and preprocessing it. It's sheer size gives my personal computer's processor anxiety and the time it would take to process everything gives ME anxiety.
 
@@ -15,7 +15,7 @@ Note that while I try to explain things as plainly as possible, the information 
 ## Downloading the dataset
 ### 1. - Navigating the Canadian Open Neuroscience Platform
 
-The open data from the Prevent-AD cohort is made available through the [Canadian Open Neuroscience Platform portal](https://portal.conp.ca/).
+The open data from the PREVENT-AD cohort is made available through the [Canadian Open Neuroscience Platform portal](https://portal.conp.ca/).
 
 ```{image} ../images/conp_portal.png
 :align: center
@@ -24,7 +24,7 @@ The open data from the Prevent-AD cohort is made available through the [Canadian
 
 As you'll see when you click on data there is a lot of different dataset (don't be shy... you know you want to look at all the data that are at your fingertips!). Most of them are downloaded in the same way that I will present below so feel free to use the documentation for another CONP dataset if you need.
 
-In the search bar, if you look for "Prevent-AD", you will notice that there are three different choices:
+In the search bar, if you look for "PREVENT-AD", you will notice that there are three different choices:
 
 ```{image} ../images/pad_data_choice.png
 :align: center
@@ -34,18 +34,18 @@ In the search bar, if you look for "Prevent-AD", you will notice that there are 
 
 **All three require an account to be created** but give access to different data and different data structure. Here are the differences:
 
-| | Prevent-AD Open  | Prevent-AD Open BIDS | Prevent-AD Registered|
+| | PREVENT-AD Open  | PREVENT-AD Open BIDS | PREVENT-AD Registered|
 |------------|-----------|-----------|---------------|
 | Contents   | * MRIs<br>* Basic demographics | * MRIs<br>* Basic demographics | * MRIs<br>* Detailed demographics<br>* Neuropsychology<br>* Neurosensory assessments<br>* Medical history<br>* Genetics<br>* CSF protein levels |
 | Files type | `.mnc`  | `.nii`  | `.nii` |
 | Structure  | All images in the<br>same directory, for<br>every participant <br>(not BIDS) | BIDS-compliant<br>structure   | BIDS-compliant structure |
 
-The Prevent-AD Open contains the original dataset made available to researchers. It contains all available MRIs and basic demographics (ID, gender, handedness and language). Note that the images are in the MINC format (not NIFTI) and the images are not in BIDS-compliant structure. The Prevent-AD Open BIDS contains the same data, but the data is organized in BIDS and the brain scans are available in `.nii` format. Both the Prevent-AD Open and Prevent-AD Open BIDS are available to the community [by requesting an Open Access account on LORIS](https://openpreventad.loris.ca/login/request-account/) with minimal information (name, institution and institution email).
+The PREVENT-AD Open contains the original dataset made available to researchers. It contains all available MRIs and basic demographics (ID, gender, handedness and language). Note that the images are in the MINC format (not NIFTI) and the images are not in BIDS-compliant structure. The PREVENT-AD Open BIDS contains the same data, but the data is organized in BIDS and the brain scans are available in `.nii` format. Both the PREVENT-AD Open and PREVENT-AD Open BIDS are available to the community [by requesting an Open Access account on LORIS](https://openpreventad.loris.ca/login/request-account/) with minimal information (name, institution and institution email).
 
-Finally, the Prevent-AD Registered contains a lot more demographic and clinical information on the participants in addition to all the MRIs available with the Prevent-AD Open and the Prevent-AD Open BIDS. However, it's access is currently restricted to faculty members from a university or physicians. If you fit that description, you can [request a Registered account on LORIS](https://registeredpreventad.loris.ca/).
+Finally, the PREVENT-AD Registered contains a lot more demographic and clinical information on the participants in addition to all the MRIs available with the PREVENT-AD Open and the PREVENT-AD Open BIDS. However, it's access is currently restricted to faculty members from a university or physicians. If you fit that description, you can [request a Registered account on LORIS](https://registeredpreventad.loris.ca/).
 
 ```{tip}
-My main recommendation would be to use the Prevent-AD Open BIDS dataset. Nowadays, a lot of software work better with BIDS-compliant structures (e.g., [fMRIPrep](https://fmriprep.org/en/stable/). Also, the images in the original Prevent-AD Open dataset comes in the [MINC (`.mnc`) format](http://bic-mni.github.io/), which work mostly with specific preprocessing tools (e.g., [CIVET](https://www.bic.mni.mcgill.ca/ServicesSoftware/CIVET-2-1-0-Table-of-Contents)). There are tools to convert the `.mnc` format to the `.nii` format, but the data would also require BIDS formatting which can take a lot of time.
+My main recommendation would be to use the PREVENT-AD Open BIDS dataset. Nowadays, a lot of software work better with BIDS-compliant structures (e.g., [fMRIPrep](https://fmriprep.org/en/stable/). Also, the images in the original Prevent-AD Open dataset comes in the [MINC (`.mnc`) format](http://bic-mni.github.io/), which work mostly with specific preprocessing tools (e.g., [CIVET](https://www.bic.mni.mcgill.ca/ServicesSoftware/CIVET-2-1-0-Table-of-Contents)). There are tools to convert the `.mnc` format to the `.nii` format, but the data would also require BIDS formatting which can take a lot of time.
 ```
 
 ### 2. - Setting up Datalad
@@ -79,12 +79,12 @@ Because Beluga has root privilege locked for users, installing Datalad through P
 
 ### 3. - Downloading the data
 
-Now is the fun (but a bit long) part: downloading the data. From this point on, there isn't really any difference between the three Prevent-AD datasets. The steps are exactly the same and are all [detailed here](https://portal.conp.ca/dataset?id=projects/preventad-open-bids). If you are using a Python based installation of Datalad, make sure the Python environment is sourced before executing the command (this happened to me many times...)
+Now is the fun (but a bit long) part: downloading the data. From this point on, there isn't really any difference between the three PREVENT-AD datasets. The steps are exactly the same and are all [detailed here](https://portal.conp.ca/dataset?id=projects/preventad-open-bids). If you are using a Python based installation of Datalad, make sure the Python environment is sourced before executing the command (this happened to me many times...)
 
 ```bash
 $ datalad install https://github.com/CONP-PCNO/conp-dataset.git #Step 1 - Installs the directory structure for the CONP
 $ cd conp-dataset                                               #Step 2 - Go to the directory 
-$ datalad install projects/preventad-open-bids                  #Step 3 - Install specifically the Prevent-AD dataset you need
+$ datalad install projects/preventad-open-bids                  #Step 3 - Install specifically the PREVENT-AD dataset you need
 $ cd projects/preventad-open-bids/BIDS_dataset                  #Step 4 - Move to the BIDS directory you just installed (more details on this below)
 ```
 
@@ -102,7 +102,7 @@ sub-1000173
 
 You might think "Wow! That was so fast! Since when has my internet provider upgraded my internet to download hundreds of GBs in seconds/minutes?". 
 
-Think again. Datalad works by downloading the directory structure of the Prevent-AD Open BIDS dataset with instructions on how to download it, but the commands above **do not actually download the data**. It's basically like if a turkey was missing its stuffing (a.k.a. the best part of turkey) but came with instructions on how to get the stuffing. If you do the following command, you should see this on your terminal:
+Think again. Datalad works by downloading the directory structure of the PREVENT-AD Open BIDS dataset with instructions on how to download it, but the commands above **do not actually download the data**. It's basically like if a turkey was missing its stuffing (a.k.a. the best part of turkey) but came with instructions on how to get the stuffing. If you do the following command, you should see this on your terminal:
 
 ```bash
 $ ls -l

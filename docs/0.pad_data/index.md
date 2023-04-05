@@ -1,4 +1,4 @@
-# Prevent-AD cohort data and datasets module
+# PREVENT-AD cohort data and datasets module
 
 ```{image} ../images/pad_conp_logo.png
 :align: center
