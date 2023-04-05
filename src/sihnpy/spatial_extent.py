@@ -385,6 +385,7 @@ def gmm_threshold_deriv(final_data, probs_df, prob_threshs, improb=None):
                 if thresh_value < improb:
                     print(f"Threshold for {col} is improbable. Fixing.")
                     fix = False
+                    i = 0
                     #While the value is improbable, keep trying to find a value
                     while fix is False:
                         #Set the old probability to 0 to ignore it
@@ -398,6 +399,14 @@ def gmm_threshold_deriv(final_data, probs_df, prob_threshs, improb=None):
                             #Save the new value and switch the loop off
                             thresh_df.loc[col, f'thresh_{thresh}'] = thresh_value
                             fix = True
+                        #In case no values go over the improbable threshold after a few tries,
+                        # we forcibly set that threshold to missing.
+                        else:
+                            i += 1
+                            if i == 10:
+                                print(f"---Can't fix thresholds for {col}. Setting to missing.")
+                                thresh_df.loc[col, f'thresh_{thresh}'] = np.NaN
+                                fix = True
                 else:
                     #If the value is not improbable, simply save it
                     thresh_df.loc[col, f'thresh_{thresh}'] = thresh_value
