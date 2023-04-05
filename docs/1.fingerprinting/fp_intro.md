@@ -38,6 +38,12 @@ While there is no clear consensus in the field, we are using the definitions fro
 - **Differential identifiability**: the difference between the fingerprint strength and the alikeness coefficient. Effectively a measure of distance between how similar an individual is to themselves compared to others.
 ```
 
+## Data type
+
+**Fingerprinting** methodology has been used with different imaging modalities including fMRI[^Finn_2015], structural and diffusion MRI[^Mansour_2021]. It has also been used with imaging taken at multiple time points for every individuals.[^Finn_2015],[^Horien_2019] This measure could technically be applied to any type of data available for an individual where enough information is available (for example, extensive questionnaires and behavioral measures). *Note however that the quantity of data necessary per individual to make this work would need to be quite big; in functional MRI, small networks with a small number of edges (e.g., 20 nodes; 400 edges) tend to work poorly in identifying individuals*
+
+The fingerprinting module currently expects two text files per participants: one text file per modality used for fingerprinting. It also expects at spreadsheet imported into Python (i.e., `pandas.DataFrame`) with the IDs of the participants.
+
 ## Use cases and limitations
 
 Generally, the conditions to use **fingerprinting** are:
