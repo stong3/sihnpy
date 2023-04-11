@@ -35,7 +35,7 @@ def gen_random_population(mean1, sd1, size1, mean2, sd2, size2):
     numpy.array
         Numpy array containing the 308 random data points; 100 AD, 208 CU
     """
-
+    np.random.seed(667)
     #Create a random population based on CU and on AD. Concatenate
     pop_sim_neg_data = np.random.choice(stats.norm.rvs(mean1, sd1, size1, random_state=667), 208)
     pop_sim_pos_data = np.random.choice(stats.norm.rvs(mean2, sd2, size2, random_state=667), 100)
