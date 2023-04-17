@@ -55,7 +55,7 @@ Some general conditions to use the **spatial extent** are:
 * Have data available for each brain region that, based on theory or observation, can be binarized or thresholded into "normal"/"abnormal" or "low"/"high" categories
 
 Some general strengths and limitations in using this method:
-|Strength|Limitations|
+|Strengths|Limitations|
 |:-------|:-----------|
 | o Easy-to-apply individual-level <br> measure | x Need to binarize the data to get the measure <br> which might preclude complex data organization |
 | o Easy to interpret (i.e., number of abnormal regions) | x Thresholds vary between methods and between data <br> collected, meaning that a high spatial extent in <br> one study might not be directly comparable to a <br> different study |
