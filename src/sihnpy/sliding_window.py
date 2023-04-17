@@ -7,9 +7,28 @@ import numpy as np
 # Sliding-window
 
 def bins(data, var, w_size, s_size, collapse=False):
-    """ Sliding-window function estimating the number of bins to compute.
+    """Sliding-window function estimating the number of bins to compute.
 
-    Future options: allow for missing values (choose to sort them and put them first or last, or just remove them).
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Data of the sample containing the variable `var` to use for sorting and sliding.
+    var : str
+        Name (string) of the column to use for sorting
+    w_size : int
+        Integer representing the window size (i.e., number of participants per window)
+    s_size : int
+        Integer representing the step size (i.e., number of non-overlapping participants per 
+        window)
+    collapse : bool, optional
+        Switch determining if the last window has a larger or smaller number of participants,
+        by default False
+
+    Returns
+    -------
+    int
+        Returns an integer representing the number of windows to use based on the data and
+        parameters provided.
     """
 
     #Check missing values. If missing, we can't compute.
@@ -23,13 +42,12 @@ def bins(data, var, w_size, s_size, collapse=False):
     n_sub = len(sorted_df)
 
     #Compute the bins
-    ## First situation: dividing with window params yields clean division
+    ## First situation: We want the last window to have more participants
     if collapse is True:
         print("Collapse is True: the last window may have a larger number of participants")
         n_bin = math.ceil((n_sub - w_size) / s_size)
         print(f'Number of windows: {n_bin}')
-    ##Second situation: dividing the window params doesn't yield a clean division.
-    ## in that case, there are more participants, but not enough to make a full other window.
+    ##Second situation: We want the last window to have less participants
     else:
         print("Collapse is False: the last window may have a smaller number of participants")
         n_bin = math.ceil((n_sub - w_size) / s_size) + 1
@@ -38,12 +56,31 @@ def bins(data, var, w_size, s_size, collapse=False):
     return n_bin
 
 def build_windows(data, var, w_size, s_size, n_bin):
-    """ Function deriving the participants in each window. Returns a pandas.DataFrame with only an
+    """Function deriving the participants in each window. Returns a pandas.DataFrame with only an
     index. 
 
     Note: In the original script, the code creating "bin_list" has an extra +1. This was because R
     is 1-indexed. However, Python is 0-indexed, so it needs to start at 0.
 
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Data of the sample containing the variable `var` to use for sorting and sliding.
+    var : str
+        Name (string) of the column to use for sorting
+    w_size : int
+        Integer representing the window size (i.e., number of participants per window)
+    s_size : int
+        Integer representing the step size (i.e., number of non-overlapping participants per 
+        window)
+    n_bin : int
+        Number of windows to derive
+
+    Returns
+    -------
+    dict
+        Returns a dictionary where the keys are the name of the windows and the values are
+        the IDs of the participants in each window.
     """
 
     w_store = {} #Store the windows once computed
@@ -87,6 +124,7 @@ def data_by_window(w_store, data):
     w_data = {} #Dict to store the data in windows
 
     for labels, win_ids in w_store.items():
+        print(f'Reconstructing data for window {labels}')
         #Merge the data to the index we extracted
         merged_data = win_ids.merge(data, left_index=True, right_index=True, how='left')
         w_data[labels] = merged_data #Save the dataframe
