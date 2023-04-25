@@ -118,7 +118,20 @@ def build_windows(data, var, w_size, s_size, n_bin):
     return w_store
 
 def data_by_window(w_store, data):
-    """ This function separates the data in age windows.
+    """This function separates the data in age windows.
+
+    Parameters
+    ----------
+    w_store : dict
+        Dictionary containing the window labels and the IDs for each window.
+    data : pandas.DataFrame
+        Dataframe containing the data to split in windows.
+
+    Returns
+    -------
+    dict
+        Dictionary where the keys are the labels of the windows and the values are the dataframes
+        split for each window.
     """
 
     w_data = {} #Dict to store the data in windows
@@ -132,8 +145,20 @@ def data_by_window(w_store, data):
     return w_data
 
 def sum_by_window(w_data, var):
-    """ This function outputs summary measures for the
-    binning variable for each window.
+    """This function outputs summary measures for the sliding variable used for the sliding-window.
+    Can be used on other variables in the data, as long as the variables are continuous.
+
+    Parameters
+    ----------
+    w_data : dict
+        Dictionary containing the data for each window.
+    var : str
+        String representing the name of the variable to generate stats for.
+
+    Returns
+    -------
+    pandas.DataFrame
+        _description_
     """
 
     w_summary = pd.DataFrame() #Dataframe to store the summary measures

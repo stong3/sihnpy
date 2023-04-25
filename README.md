@@ -35,9 +35,10 @@ Head to our Github page to take a look at the code more closely: https://github.
 
 The package is separated in distinct modules with their own rationale, explanation, use cases and limitations. Please visit the documentation for specific information on each module. Below is a quick summary of each available module:
 
-   - Datasets: Contains a subset of the Prevent-AD Open data which can be used to test functionalities of the package
-   - Fingerprinting: Computes individual-specific signatures of variables and the related metrics
-   - Spatial extent: Computes individual-specific measures of how "abnormal" regions across the brain are compared to pre-computed thresholds
+   - **Datasets**: Contains a subset of the PREVENT-AD Open data which can be used to test functionalities of the package
+   - **Fingerprinting**: Computes individual-specific signatures of variables and the related metrics
+   - **Spatial extent**: Computes individual-specific measures of how "abnormal" regions across the brain are compared to pre-computed thresholds
+   - **Sliding-window**: Sample selection tool to create overlapping subgroups of individuals within a sample
 
 While I try my best to simplify the concepts as much as possible, note that **an understanding of Python's basics is probably necessary** to run most of the modules.
 
@@ -49,13 +50,13 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 
 `sihnpy` was created by Frédéric St-Onge. It is licensed under the terms of the MIT license.
 
-Note that `sihnpy` is shipped with a small subset of the [PREVENT-AD dataset](https://portal.conp.ca/dataset?id=projects/preventad-open-bids). These data are provided in open access through the generosity and hard work of the SToP-AD center at the Douglas Mental Health University Institute affiliated with McGill University, Montreal, Canada. Using these data to test the functionalities of the software is encouraged. However, users using the `datasets` module agree to the terms of use of the Prevent-AD dataset (see [License](license.md) for more information).
+Note that `sihnpy` is shipped with a small subset of the [PREVENT-AD dataset](https://portal.conp.ca/dataset?id=projects/preventad-open-bids). These data are provided in open access through the generosity and hard work of the SToP-AD center at the Douglas Mental Health University Institute affiliated with McGill University, Montreal, Canada. Using these data to test the functionalities of the software is encouraged. However, users using the `datasets` module agree to the terms of use of the PREVENT-AD dataset (see [License](license.md) for more information).
 
 ## Credits
 
 The package was developed in part from the input of members from the [VilleneuveLab](http://www.villeneuvelab.com/en/home/). Come see the awesome work we do on aging and Alzheimer's disease!
 
-`sihnpy` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter). This package was developped alongside my reading of the book *Python packages*, an open-source book written by Tomas Beuzen & Tiffany Timbers, available [here](https://py-pkgs.org/welcome).
+`sihnpy` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter). This package was developped alongside my reading of the book *Python packages*, an open-source book written by Tomas Beuzen & Tiffany Timbers, available [here](https://py-pkgs.org/welcome) detailing how to create a Python package from A to Z.
 
 The logo of the package used a [copyright-free image from Pixabay](https://pixabay.com/vectors/snake-animal-line-art-serpent-6158325/) created by the user StarGlade, which was modified to create `sihnpy`'s logo.
 
@@ -65,9 +66,9 @@ The download of the data was made possible by the support from the [Canadian Ope
 
 We also acknowledge the support received by Calcul Québec and the Digital Research Alliance of Canada (DRAC) in the development of `sihnpy`. Many of the functionalities in `sihnpy` were tested and developped on a high performance computing environment such as [Beluga](https://www.calculquebec.ca/en/communiques/beluga-a-supercomputer-for-science-2/). The preprocessing and storage of the Prevent-AD data available in `sihnpy` was also executed on Beluga.
 
-I was also financially supported by the Fonds de Recherche du Québec - Santé, the Healthy Brains for Healthy Lives initiative and Mitacs at different point during my studies and the development of this software. 
+I was also financially supported by the [Fonds de Recherche du Québec - Santé](https://frq.gouv.qc.ca/en/), the [Healthy Brains for Healthy Lives initiative](https://www.mcgill.ca/hbhl/) and [Mitacs](https://www.mitacs.ca/en) at different point during my studies and the development of this software. 
 
-The funding organizations mentioned above did not participate in the decision making process involved in the development of the software.
+**The funding organizations mentioned above did not participate in the decision making process involved in the development of the software.**
 
 ## References
 

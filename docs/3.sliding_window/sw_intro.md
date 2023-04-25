@@ -9,10 +9,10 @@ While this code was tested and used for publication, it is still undergoing acti
 ## Rationale
 
 ```{warning}
-The term sliding-window is often used in dynamic functional connectivity as a method of selecting different segments of functional connectivity during time. While the principle is similar, the goal is significantly different. All mentions of sliding-window in this module refer to **sample selection** and not dynamic functional connectivity.
+The term **sliding-window** is often used in dynamic functional connectivity as a method of selecting different segments of functional connectivity during time. While the principle is similar, the goal is significantly different. All mentions of **sliding-window** in this module refer to **sample selection** and not dynamic functional connectivity.
 ```
 
-The sliding-window analysis is slightly different from other analyses presented in `sihnpy`; contrary to most other analyses, the sliding-window could be better defined as a **sample-selection tool** rather than a purely statistical method. [^Vasa_2018]
+The **sliding-window** analysis is slightly different from other analyses presented in `sihnpy`; contrary to most other analyses, the **sliding-window** could be better defined as a **sample-selection tool** rather than a purely statistical method. [^Vasa_2018]
 
 The goal behind this method is to **generate overlapping sub-groups of participants based on a characteristic of the sample** [^Vasa_2018],[^Stonge_2023]. For example, let's take the original study using this methodology. In the study by Vasa et al. (2018),[^Vasa_2018] they had a sample of adolescents and young adults (n=297) aged between 14 and 24 years in which they wanted to study structural covariance changes during development. In such studies, one could decide to split the sample in a predetermined number of sub-samples (e.g., 14-15, 16-17, 18-19, 19-20, 20-21, 21-22, 22-23). But there are some inconvenients to this:
 
@@ -24,14 +24,14 @@ The **sliding-window** analysis, while not perfect, aims to offer a more data-dr
 
 ## Definitions
 
-The **sliding-window** is defied as an **ordered sample selection method in which sub-samples of overlapping participants are created. The order is determined by ordering the variable researchers think may impact the outcome of interest.**
+The **sliding-window** is defied as an **ordered sample selection method in which sub-samples of overlapping participants are created. The order is determined by ordering the variable researchers think may impact the outcome of interest.** In plain English, the **sliding-window** create overlapping samples based on a variable of interest.
 
 Obviously, the variable chosen needs to be **continuous** as a categorical variable would already lend itself to spliting participants in groups.
 
 ```{admonition} Definitions
 :class: important
 - **Window**: Subsample of participants selected. Usually preceeded by the variable used to create the subsamples (e.g., age windows).
-- **Window size**: Size of each subsample selected by the sliding-window method
+- **Window size**: Size of each subsample selected by the **sliding-window** method
 - **Step size**: Inverse of the overlap between windows; i.e., if a window size is 100 participants and the step size is 20 participants, it means that the overlap between two windows is 80 participants. See Figure below for more details.
 ```
 
@@ -42,11 +42,11 @@ The **step size** of a **sliding-window** analysis is not particularly intuitive
 :scale: 30
 :align: center
 ```
-*Illustration of the sliding-window approach to select sub-groups of participants. Subsamples of participants (window size) are chosen iteratively by taking the participants from the cohort, ordered by variable of interest, and slowly moving along (step size) the variable of interest. This method yields subsets of overlapping participants across the original sample, offering a cross-sectional, semi-continuous overview of changes. Adapted from St-Onge et al. (2023).*[^Stonge_2023]
+*Illustration of the sliding-window approach to select sub-groups of participants. Subsamples of participants (window size) are chosen iteratively by taking the participants from the cohort, ordered by variable of interest, and slowly moving along (step size) the variable of interest. The half-rectangle represents the first window selected by the method while dotted half-rectangles represent the next few windows to be selected. This method yields subsets of overlapping participants across the original sample, offering a cross-sectional, semi-continuous overview of changes. Adapted from St-Onge et al. (2023).*[^Stonge_2023]
 
 ## Data type
 
-The sliding-window currently only works for tabular (i.e., spreadsheet) data. Specifically, data input into `sihnpy` should be a `pandas.DataFrame` with the index set as the participants' IDs and the `DataFrame` should have the variable you want to use to create the windows. The variable used to create the windows should be continuous.
+The **sliding-window** currently only works for tabular (i.e., spreadsheet) data. Specifically, data input into `sihnpy` should be a `pandas.DataFrame` with the index set as the participants' IDs and the `DataFrame` should have the variable you want to use to create the windows. The variable used to create the windows should be continuous.
 
 ## Use cases and limitations
 
@@ -56,8 +56,8 @@ Some general strengths and limitations in using this method:
 |Strengths|Limitations|
 |:-------|:-----------|
 | o Easy-to-apply sample selection method | x Requires the user to choose <br> a window size and a step size manually <br> which can be arbitrary |
-| o Easy to use and input ready for next analyses | x Doesn't directly target individual differences <br>, but rather zooms in on group variability |
-| o Easy computational load | x Using multiple sliding-window parameters <br> (i.e., multiple window and step size) are <br> almost necessary to insure the arbitrary choices <br> are justified, but this generally complicates the results <br> necessary to report.|
+| o Easy to use and input ready for next analyses | x Doesn't directly target individual differences, <br> but rather zooms in on group variability |
+| o Easy computational load | x Using multiple sliding-window parameters <br> (i.e., multiple window and step size) are <br> necessary to insure the arbitrary choices <br> are justified, but this generally complicates the results <br> necessary to report as many <br> more figures are needed.|
 
 ## Logistical considerations
 
@@ -67,9 +67,13 @@ That said, it might be a different story for very large data files (with a lot o
 
 Finally, as a general recommendation, you should compute **sliding windows** with multiple parameter combinations to ensure that your results are not driven by the specific grouping. That said, this usually complicates results and increases the logistic complexity, particularly for figures.
 
+## Future considerations
+
+There aren't currently a lot of future updates planned for the **sliding-window** analysis in `sihnpy`. However, one of them will be to include a brief tutorial on how to plot data from the **sliding-window** method in an efficient way.
+
 ## References
 
-Using a sliding-window approach for participants has not been used extensively in the literature. Here are a few references using this method.
+Using a **sliding-window** approach for participants has not been used extensively in the literature. Here are a few references using this method.
 
 [^Vasa_2018]: Váša F, Seidlitz J, Romero-Garcia R, Whitaker KJ, Rosenthal G, Vértes PE, Shinn M, Alexander-Bloch A, Fonagy P, Dolan RJ, Jones PB, Goodyer IM; NSPN consortium; Sporns O, Bullmore ET. Adolescent Tuning of Association Cortex in Human Structural Brain Networks. Cereb Cortex. 2018 Jan 1;28(1):281-294. doi: 10.1093/cercor/bhx249. PMID: 29088339; PMCID: PMC5903415.
-[^Stonge_2023]: St-Onge et al. (2023). In revision
+[^Stonge_2023]: St-Onge et al. (Accepted). Network Neuroscience.
