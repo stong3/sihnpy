@@ -57,3 +57,23 @@ def pad_spex_input():
         regional_thresholds = pd.read_csv(f'{str(f)}/regional_thresholds.csv').set_index('region')
 
     return tau_data, regional_thresholds, regional_averages
+
+def pad_sw_input():
+    """ Loads the spreadsheet for the simulated age data for the 308 PREVENT-AD participants
+    available in the Open dataset. This data is used to test and practice the sliding-window
+    module.
+
+    Note that all age data is **simulated** (i.e., was randomly generated and assigned to a
+    participant). As such, the data should only be used for educational purposes.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Returns a pandas DataFrame containing the simulated age of 308 participants from the 
+        PREVENT-AD.
+    """
+
+    with resources.files('sihnpy.data.sliding_window') as f:
+        age_data = pd.read_csv(f'{str(f)}/conp_simulated_age_data.csv').set_index('participant_id')
+
+    return age_data

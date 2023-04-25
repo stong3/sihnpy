@@ -24,3 +24,12 @@ def test_pad_spex_input():
     assert tau_data['CTX_LH_ENTORHINAL_SUVR'].isnull().sum() == 0, "Some data is missing in the simulated data"
     assert len(regional_averages) == 16, "Wrong number of rows in the regional averages"
     assert len(regional_thresholds) == 16, "Wrong number of rows in the regional thresholds"
+
+def test_pad_sw_input():
+    """ Function testing the import of the data for the sliding-window
+    """
+
+    age_data = datasets.pad_sw_input()
+
+    assert len(age_data) == 308, "Wrong number of participants in the .tsv. Should be 308."
+    assert len(age_data.columns.values) == 5, "Wrong number of columns in the .tsv. Should be 4."
