@@ -2,6 +2,21 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.0 (2023-04-25)
+### Feature
+* Added data and data utility for sliding-window ([`bf51c11`](https://github.com/stong3/sihnpy/commit/bf51c11e5b4d020dd92f02afd49d598f88eda40f))
+
+### Fix
+* Changed naming of the sliding-window functions ([`a27310a`](https://github.com/stong3/sihnpy/commit/a27310a0909151c5a952edad73ba74f2167a4425))
+
+### Documentation
+* Revised documentation across sliding-window ([`4e315d3`](https://github.com/stong3/sihnpy/commit/4e315d3595c750a8bb8c2b952e03337b6bedb71a))
+* Created and finished the sliding-window docs ([`994f04b`](https://github.com/stong3/sihnpy/commit/994f04b4cb4bc79bfd9cf2fdc5829531915e61c5))
+* Updated docstrings ([`54eed6d`](https://github.com/stong3/sihnpy/commit/54eed6d34f1ab3cdf41cf032a975c8c4632c87ba))
+* Created documentation for sliding-winow ([`a42b6e1`](https://github.com/stong3/sihnpy/commit/a42b6e17201d11483386572b754305f27502ca16))
+* Corrected issue in simulated example of spex ([`c6100a0`](https://github.com/stong3/sihnpy/commit/c6100a002109a8f5989e48744643f426978a8eae))
+* Added quick example of sim data for sliding window ([`003baee`](https://github.com/stong3/sihnpy/commit/003baee5a436a4f83993518b26d2144b45b630bc))
+
 ## v0.2.0 (2023-04-05)
 ### Feature
 * Finished integrating apply part of spex ([`d6c1f20`](https://github.com/stong3/sihnpy/commit/d6c1f20b3decaa9d50258bb048b846527a358417))
