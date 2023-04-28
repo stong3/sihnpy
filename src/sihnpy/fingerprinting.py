@@ -514,3 +514,215 @@ class FingerprintMats:
                     delimiter=",", fmt='%1.3f')
                 np.savetxt(f"{path_fp_final}/subject_list_{name}.csv", self.id_ls,
                     delimiter="\n", fmt="%s")
+
+##########
+
+def import_fingerprint_data(data, var):
+    """ Function importing the data used for fingerprinting. This function assumes two important
+    things: 1) The dataframe you are feeding it has an index that comprises the IDs of the
+    participants and 2) the dataframe is in long form (i.e., one participant has more than one
+    visit). Specifically, there should be a variable in the dataframe specifying the visit (`var`)
+    argument.
+
+    Note that by default, `sihnpy` will grab the first and last visit of a participant if there
+    are more than two visits. If you are interested in fingerprinting specific visits
+    
+    `sihnpy` will also remove participants with only 1 visit as they can't be fingerprinted.
+    """
+
+    #Find the unique values of the IDs
+    unique_ids = (data
+        .groupby(data.index)[var] #Group by the index and keep only the column specifying session
+        .nunique() #Compute number of unique entries for each participant
+        .loc[lambda x: x < 2] #Keep IDs of participants we know only have 1 visit
+    )
+
+    #Drop the participants with only one visit
+    final_data = data.drop(labels=unique_ids.index, axis=0)
+
+    if len(final_data.index) == 0:
+        return "ERROR: Dropping participants with 1 visit resulted in no participants being left. Confirm data is in long format."
+
+    #Take the first and last visit, and store in dataframes.
+    data_first = final_data.groupby(final_data.index).first()
+    data_last = final_data.groupby(final_data.index).last()
+
+    if data_first.index.values.all() != data_last.index.values.all():
+        return "ERROR: Index of the two datasets do not match. Won't fingerprint."
+
+    return data_first, data_last
+
+def fingerprint_tabs(data1, data2, pref):
+    """ Main function computing fingerprinting for tabular data. It assumes that the variables to
+    use for fingerprinting start with naming convention (e.g., "ctx").
+    """
+
+    data1_final = data1.filter(like=pref) #Restrict columns to the ones we need only
+    data2_final = data2.filter(like=pref) #Restrict columns to the ones we need only
+
+    if data1_final.index.values.all() != data2_final.index.values.all():
+        return "ERROR: Index of the two datasets do not match. Can't fingerprint."
+    
+    if data1_final.columns.values.all() != data2_final.columns.values.all():
+        return "ERROR: Columns of the two datasets do not match. Can't fingerprint."
+
+    #Create similarity matrix to store the data
+    similar_matrix = np.empty((len(data1_final), len(data2_final)))
+
+    #Fingerprinting
+    ## For each participant...
+    for i, col in enumerate(data1_final.T): #We transpose the dataframe to leverage vectorized ops
+        print(f"Participant {i+1} / {len(data1_final)}")
+        data1_array = data1_final.T[col].to_numpy() #Transform column to numpy array
+        for j, col in enumerate(data2_final.T):
+            data2_array = data2_final.T[col].to_numpy()
+
+            similar_matrix[i,j] = stats.pearsonr(data1_array, data2_array)[0]
+
+    #Clean the similarity matrix and return
+    return np.triu(similar_matrix, k=0) + np.triu(similar_matrix, k=1).T
+
+def tab_metrics_calc(data, similar_matrix, name):
+    """ Function computing the different fingerprint metrics and stores them in a dataframe
+        for export. Each metric is computed and stored in a numpy.array which are then used
+        to populate the dataframe.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Either first or last visit of fingerprinting used. This is only used to grab the
+            IDs of the participants and set them as index.
+        similar_matrix : numpy.array
+            Similarity matrix from `fingerprint_tabs` function
+        name : str
+            String to add to the variables. This is so the user can differentiate the different
+            runs of the fingerprinting if multiple are used.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Returns a pandas.DataFrame containing 5 columns: the ID and each of the four metrics.
+    """
+    #Compute the different metrics
+    fia_coef = _fia_calculator(similar_matrix=similar_matrix)
+    si_coef = _si_calculator(similar_matrix=similar_matrix)
+    oi_coef = _oi_calculator(similar_matrix=similar_matrix)
+    diff_identif_coef = _identif_calculator(si_coef, oi_coef)
+
+    #Create a dictionary and store the measures
+    fp_metrics = pd.DataFrame(data={
+        'participant_id':data.index.values,
+        f"si_{name}":si_coef,
+        f"oi_{name}":oi_coef,
+        f"fia_{name}":fia_coef,
+        f"di_{name}":diff_identif_coef})\
+            .set_index('participant_id')
+
+    if fp_metrics[f"si_{name}"].isnull().sum() != 0:
+        raise SystemExit("ERROR: Some participants have missing values from final dataframe")
+
+    return fp_metrics
+
+def tab_export(outpath, data1, data2, similar_matrix, fp_metrics, name):
+    """ Simple wrapper function exporting the data for both visits of participants fingerprinted,
+    the similarity matrix, the fingerprint metrics and the name given by the user.
+    """
+
+    data1.to_csv(f"{outpath}/fp_data_first_session_{name}.csv")
+    data2.to_csv(f"{outpath}/fp_data_second_session_{name}.csv")
+
+    sim_matrix_df = pd.DataFrame(data=similar_matrix, 
+        index=data1.index.values, columns=data1.index.values)\
+        .to_csv(f"{outpath}/similarity_matrix_{name}.csv")
+
+    fp_metrics.to_csv(f"{outpath}/fp_metrics_{name}.csv")
+
+##### Utility functions
+
+def _fia_calculator(similar_matrix):
+    """Internal function computing the fingerprint identification accuracy,
+    (number of correct identifications).
+
+    Parameters
+    -------
+    similar_matrix : numpy.array
+        Similarity matrix
+
+    Returns
+    -------
+    numpy.array
+        Binary array for every participant included: a 1 indicates correct identification
+        within the cohort and a 0 indicates incorrect identification.
+    """
+
+    fia_coef = np.empty(shape=len(similar_matrix))
+
+    #For every row in the similarity matrix, if the maximum is achieved at the diagonal,
+    # attribute a 1, otherwise a 0.
+    for i in range(0, len(similar_matrix)):
+        if np.argmax(similar_matrix[i, :]) == i:
+            fia_coef[i] = 1
+        else:
+            fia_coef[i] = 0
+
+    return fia_coef
+
+def _si_calculator(similar_matrix):
+    """Internal function computing the self-identifiability (within-individual correlation).
+    This is defined as the diagonal (within-individual correlations) of the similarity matrix.
+
+    Parameters
+    -------
+    similar_matrix : numpy.array
+        Similarity matrix
+
+    Returns
+    -------
+    numpy.array
+        Returns an array containing the self-identifiability.
+    """
+    si_coef = np.diag(similar_matrix)
+
+    return si_coef
+
+def _oi_calculator(similar_matrix):
+    """Internal function computing the others-identifiability (between-individual correlation).
+    This is defined as the average of the off-diagonal elements (row-wise) of the similarity
+    matrix.
+
+    Parameters
+    -------
+    similar_matrix : numpy.array
+        Similarity matrix
+
+    Returns
+    -------
+    numpy.array
+        Returns an array containing the others-identifiability.
+    """
+    oi_coef = (similar_matrix.sum(1)-np.diag(similar_matrix))\
+    /(similar_matrix.shape[1]-1)
+
+    return oi_coef
+
+def _identif_calculator(si_coef, oi_coef):
+    """Internal function computing the differential identifiability metric 
+    from Amico and Goni (2018). This is simply the substraction of the diagonal and average
+    off-diagonal elements from the similarity matrix.
+
+    Parameters
+    ----------
+    si_coef : numpy.array
+        Array containing the self-identifiability.
+    oi_coef : numpy.array
+        Array containing the others-identifiability.
+
+    Returns
+    -------
+    numpy.array
+        Returns an array containing the differential identifiability.
+    """
+
+    diff_ident = si_coef - oi_coef
+
+    return diff_ident
