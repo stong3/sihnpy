@@ -79,7 +79,7 @@ def _pre_mapping(data):
 
     return residual_array
 
-def imbalance_mapping(data, type):
+def imbalance_mapping(data, type='sign'):
     """ Imbalance mapping function. For each column in the original data, compute covariance
     (i.e., regression) using orthogonal distance regression. Orthogonal distance is computed
     for each participant individually for each regression. We store the orthogonal distance
@@ -104,10 +104,10 @@ def imbalance_mapping(data, type):
             if type == 'abs':
                 #Extract orthogonal distances from output of ODR
                 odr_dist = odregression_single(index=data.index,
-                        x=data_i.values, y=data_j.values)[0]['absolute_residual_error'].values
+                        x=data_i.values, y=data_j.values)[0]['absolute_orthogonal_distances'].values
             else:
                 odr_dist = odregression_single(index=data.index,
-                        x=data_i.values, y=data_j.values)[0]['signed_residual_error'].values
+                        x=data_i.values, y=data_j.values)[0]['signed_orthogonal_distances'].values
 
             #Store the residuals in the 3D array.
             residual_array[i,j,:] = odr_dist #Order of the 3th dimension will match the input order
@@ -137,17 +137,31 @@ def _by_person(residual_array):
 def _by_region(residual_array):
     """ Imbalance Mapping creates a 3D matrix where the first and second
     dimension is the orthogonal distance for each region. The goal here
-    is to create a sum on the 0 axis.
+    is to create a sum on the 0 and 2 axis.
     """
 
     resid_copy = residual_array.copy()
 
-    #Fill the diagonals of each person with missing values
+    #Fill the diagonals of each person with missing values (as we don't want the correlation if i==j)
     for person in range(0, residual_array.shape[2]):
         np.fill_diagonal(resid_copy[:,:,person], np.NaN)
 
     return np.nanmean(resid_copy, axis=(0,2))
 
+def _by_person_by_region(residual_array):
+    """ Imbalance Mapping creates a 3D matrix where the first and second
+    dimension is the orthogonal distance for each region. The goal here
+    is to create a sum on the 0 axis. This will give, on
+    average, how imbalanced each region is by person.
+    """
+
+    resid_copy = residual_array.copy()
+
+    #Fill the diagonals of each person with missing values (as we don't want the correlation if i==j)
+    for person in range(0, residual_array.shape[2]):
+        np.fill_diagonal(resid_copy[:,:,person], np.NaN)  
+
+    return np.nanmean(resid_copy, axis=0).T
 
 def imbalance_stats(data, residual_array):
     """ Function computing the two measures from Nadig et al. (2021): we want the average imbalance
@@ -160,14 +174,33 @@ def imbalance_stats(data, residual_array):
 
     list_imbalance_person = _by_person(residual_array=residual_array)
     avg_by_region = _by_region(residual_array=residual_array)
+    avg_imb_by_pers_by_region = _by_person_by_region(residual_array=residual_array)
 
-    avg_imbalance_by_region = pd.DataFrame(index=data.columns.values, 
+    avg_imb_by_region = pd.DataFrame(index=data.columns.values, 
                                 data=avg_by_region, columns=['avg_imbalance_by_region'])
-    avg_imbalance_by_person = pd.DataFrame(index=data.index.values, 
+    avg_imb_by_person = pd.DataFrame(index=data.index, 
                                 data=list_imbalance_person, columns=['avg_imbalance_by_person'])
 
-    return avg_imbalance_by_region, avg_imbalance_by_person
+    avg_imb_by_pers_by_region = pd.DataFrame(index=data.index,
+                                data=avg_imb_by_pers_by_region,
+                                columns=data.columns.values)
 
-def export():
-    """ 
+    return avg_imb_by_region, avg_imb_by_person, avg_imb_by_pers_by_region
+
+def export(data, residual_array, output_path, avg_imb_by_region, avg_imb_by_person, avg_imb_by_pers_by_region, name, all=False):
+    """ Function to export the results of the imbalance mapping to files. If requested by the user
+    `sihnpy` will also output the individual orthogonal distances matrices.
     """
+
+    avg_imb_by_region.to_csv(f"{output_path}/avg_imbalance_by_region_{name}.csv")
+    avg_imb_by_person.to_csv(f"{output_path}/avg_imbalance_by_person_{name}.csv")
+    avg_imb_by_pers_by_region.to_csv(f"{output_path}/avg_imbalance_by_person_by_region_{name}.csv")
+
+    if all is True: #Output all the individual imbalance mapping if user requests
+        for i, person in enumerate(data.index.values):
+            resid_i = residual_array[:,:,i]  #Extract individual matrix for each participant
+            np.fill_diagonal(resid_i, np.NaN) #Fill the diagonal with missing values
+            #Save the matrices
+            np.savetxt(f"{output_path}/imbalance_{person}_{name}.txt", resid_i, fmt='%1.3f') 
+
+
