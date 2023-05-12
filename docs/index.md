@@ -10,6 +10,7 @@
 1.fingerprinting/index.md
 2.spex/index.md
 3.sliding_window/index.md
+4.imbalance_mapping/index.md
 license.md
 changelog.md
 contributing.md
