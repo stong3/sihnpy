@@ -44,6 +44,8 @@ While there is no clear consensus in the field, we are using the definitions fro
 
 The fingerprinting module currently expects two text files per participants: one text file per modality used for fingerprinting. It also expects at spreadsheet imported into Python (i.e., `pandas.DataFrame`) with the IDs of the participants.
 
+Since `v0.4`, the fingerprinting module also accepts a long-format spreadsheet where each row represents a participant visit and each column is the value of interest in a cortical region. The `pandas.DataFrame` **must** have either a variable identifying the different visits OR you must supply two `DataFrame`s where each has a data for a specific visit. The functions are different from the matrix-input functions (refer to the {ref}`tutorial <1.fingerprinting/fp_tab_module:Fingerprinting analysis - Tabular data: Step-by-step>` for more information).
+
 ## Use cases and limitations
 
 Generally, the conditions to use **fingerprinting** are:
@@ -60,7 +62,7 @@ Generally, the conditions to use **fingerprinting** are:
 | o Can be done with whichever <br> combination of nodes you want | x Can be computationally demanding <br> if using many combinations |
 
 ```{warning}
-A major difficulty in interpreting **fingerprinting** measures is that very little research has indicated whether or not having high or low fingerprint measures can indicate meaningful behavioral/clinical/biomarker changes. Some research (including my own) has showed that worse fingerprints were associated with mental health diagnoses[^Kaufmann_2017],[^Kaufmann_2018] and that lower brain volume was associated with lower **fingerprint strength**. [^Ousdal_2020],[^St_Onge_2023]
+A major difficulty in interpreting **fingerprinting** measures is that very little research has indicated whether or not having high or low fingerprint measures can indicate meaningful behavioral/clinical/biomarker changes. Some research (including my own) has showed that worse fingerprints were associated with mental health diagnoses[^Kaufmann_2017],[^Kaufmann_2018] and that lower brain volume was associated with lower **self-identifiability**. [^Ousdal_2020],[^St_Onge_2023]
 
 However, it is still unclear how these fingerprints change with different diseases and disease stages. Caution should be used when interpreting the results from the fingerprinting analyses in the context of clinical applications.
 ```
@@ -100,4 +102,4 @@ Below is the list of references discussed on this page. This list is not extensi
 [^Kaufmann_2017]: Kaufmann et al. (2017). Nat Neuro. [10.1038/nn.4511](https://doi.org/10.1038/nn.4511)
 [^Kaufmann_2018]: Kaufmann et al. (2018). JAMA Psychiatry. [10.1001/jamapsychiatry.2018.0844](https://doi.org/10.1001/jamapsychiatry.2018.0844)
 [^Ousdal_2020]: Ousdal et al. (2020). Hum Brain Mapp. [10.1002/hbm.24833](https://10.1002/hbm.24833)
-[^St_Onge_2023]: St-Onge et al. (2023). In revision.
+[^St_Onge_2023]: St-Onge et al. (2023). Network Neuroscience. [10.1162/netn_a_00320](https://doi.org/10.1162/netn_a_00320)
