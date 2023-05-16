@@ -1,0 +1,9 @@
+User-agent: *
+
+Disallow: /
+
+Allow: /en/latest
+
+Allow: /en/imbalance
+
+Sitemap: https://sihnpy.readthedocs.io/sitemap.xml

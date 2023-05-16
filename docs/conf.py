@@ -43,3 +43,4 @@ myst_html_meta = { #Google Analytics Verification into the meta data of each pag
     "description lang=en":"Simple set of analytical tools to study inter-individual differences in neuroimaging.",
     "google-site-verification":"tL6GkVwBg1SO3nHWAJDCJsB03NTrUvxkYPAWrMWuwj0"
 }
+html_extra_path = ["_html"] #To grab the robots.txt
