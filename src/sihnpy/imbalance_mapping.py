@@ -5,12 +5,16 @@ import pandas as pd
 import numpy as np
 
 def odregression_single(index, x, y):
-    """ Function computing orthogonal regression. Was developped as an adaptation of the Pracma
+    """Function computing orthogonal regression. Was developped as an adaptation of the Pracma
     library in R. Results were tested against Pracma and scipy's ODR implementation.
 
     The ODR implementation uses Singular Value Decomposition (SVD) to find the model values. Note
     that `sihnpy`'s imbalance mapping really only requires the orthogonal distances from the models.
     As such, there isn't a lot of focus on the other model measures in this implementation.
+
+    Also note that the function, as it is a direct translation from Pracma, can accept
+    multiple independant variables. However, this wasn't tested as the primary goal of the
+    implementation was to use ODR for covariance between 2 brain regions. Use at your risks!
 
     For more customization options, I recommend using SciPy's version which includes a lot more
     options: https://docs.scipy.org/doc/scipy/reference/odr.html#module-scipy.odr
@@ -19,6 +23,25 @@ def odregression_single(index, x, y):
     understand what Pracma's developer did in some instances. As such, some steps are not always
     clear in terms of what they do. For more info, refer to Pracma's docs:
     https://rdrr.io/cran/pracma/man/odregress.html
+
+    Parameters
+    ----------
+    index : pandas.DataFrame.index
+        Expects the index of the dataframe containing the IDs to output with the data. A 
+        `numpy.ndarray` or `list` of index values can also be accepted, but the final
+        column will not have a title.
+    x : numpy.ndarray
+        Expects a numpy array containing the values of the predictor. I recommend feeding
+        the `pandas.Series` with the added `.values` method to this argument.
+    y : numpy.ndarray
+        Expects a numpy array containing the values of the outcome. I recommend feeding
+        the `pandas.Series` with the added `.values` method to this argument.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Returns a dataframe with individual-level model-computed measures and a Dataframe
+        with model variables (slope, intercept, total sum of squares)
     """
 
     #Prep objects we need
@@ -68,7 +91,18 @@ def odregression_single(index, x, y):
     return individual_values, model_fit
 
 def _pre_mapping(data):
-    """ Computing variables needed for the imbalance mapping
+    """Create the 3D array necessary to store the orthogonal distances.
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Dataframe containing the data to input to imbalance mapping.
+
+    Returns
+    -------
+    numpy.ndarray
+        A 3D numpy.ndarray of size AxAxP, where A is the number of regions
+        and P is the number of participants.
     """
 
     num_regions = len(data.columns.values) #Compute number of brain regions
@@ -80,13 +114,27 @@ def _pre_mapping(data):
     return residual_array
 
 def imbalance_mapping(data, type='sign'):
-    """ Imbalance mapping function. For each column in the original data, compute covariance
+    """Imbalance mapping function. For each column in the original data, compute covariance
     (i.e., regression) using orthogonal distance regression. Orthogonal distance is computed
     for each participant individually for each regression. We store the orthogonal distance
     for each participant, for each pair of brain region in a 3D symmetric matrix.
 
     The script gives the option of using either "absolute" or the "signed" distances. The sign
     add the distinction of showing whether a participant is below or above the regression line.
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Dataframe where the index is the participant IDs and the columns are the brain data.
+    type : str, optional
+        Type of orthogonal to compute (signed or absolute), by default 'sign'.
+
+    Returns
+    -------
+    numpy.ndarray
+        Returns a numpy.ndarray of size AxAxP, where A is the number of region and P is the number
+        of participants. The array is filled with the orthogonal distances resulting from the
+        orthogonal regression.
     """
 
     #Compute variables needed to run
@@ -115,9 +163,23 @@ def imbalance_mapping(data, type='sign'):
     return residual_array
 
 def _by_person(residual_array):
-    """ Imbalance Mapping creates a 3D matrix where the third dimension is the orthogonal distance
-    for each participant. If we iterate over the 3rd dimension, we get the matrix refered to as C
-    in Nadig's figure.
+    """Hidden function computing the mean orthogonal distance by participant. The 3rd dimension
+    of the residual_array numpy.ndarray is the matrices of each individual participants. We extract
+    the upper triangle of each matrix and compute the mean. This is equivalent to the Figure 1D in
+    Nadig et al. (2021).
+
+    Parameters
+    ----------
+    residual_array : numpy.ndarray
+        numpy.ndarray of size AxAxP, where A is the number of region and P is the number
+        of participants. The array is filled with the orthogonal distances resulting from the
+        orthogonal regression.
+
+    Returns
+    -------
+    list
+        Returns a list of size P, where P is the number of participants. Each list element is
+        the mean imbalance in 1 individual.
     """
 
     list_means = []
@@ -135,9 +197,23 @@ def _by_person(residual_array):
     return list_means
 
 def _by_region(residual_array):
-    """ Imbalance Mapping creates a 3D matrix where the first and second
-    dimension is the orthogonal distance for each region. The goal here
-    is to create a sum on the 0 and 2 axis.
+    """Hidden function computing the mean orthogonal distance by region across all participants. 
+    In numpy terms, this is equivalent to averaging over the first and third dimension of the 
+    matrix. The diagonal of the matrices on the third dimension are perfect correlations (i.e.,
+    correlation of region R to region R) so we remove them first. The result is equivalent to
+    Figure 1E in Nadig et al. (2021).
+
+    Parameters
+    ----------
+    residual_array : numpy.ndarray
+        numpy.ndarray of size AxAxP, where A is the number of region and P is the number
+        of participants. The array is filled with the orthogonal distances resulting from the
+        orthogonal regression.
+
+    Returns
+    -------
+    np.ndarray
+        Returns a numpy array of size Ax1, where A is the number of regions.
     """
 
     resid_copy = residual_array.copy()
@@ -149,10 +225,23 @@ def _by_region(residual_array):
     return np.nanmean(resid_copy, axis=(0,2))
 
 def _by_person_by_region(residual_array):
-    """ Imbalance Mapping creates a 3D matrix where the first and second
-    dimension is the orthogonal distance for each region. The goal here
-    is to create a sum on the 0 axis. This will give, on
-    average, how imbalanced each region is by person.
+    """Hidden function computing the mean orthogonal distance by region for each participant. 
+    In numpy terms, this is equivalent to averaging over the first dimension of the 
+    matrix. The diagonal of the matrices on the third dimension are perfect correlations (i.e.,
+    correlation of region R to region R) so we remove them first. 
+
+    Parameters
+    ----------
+    residual_array : numpy.ndarray
+        numpy.ndarray of size AxAxP, where A is the number of region and P is the number
+        of participants. The array is filled with the orthogonal distances resulting from the
+        orthogonal regression.
+
+    Returns
+    -------
+    np.ndarray
+        Returns a numpy array of size PxA, where P is the number of participants and A
+        is the number of regions.
     """
 
     resid_copy = residual_array.copy()
@@ -164,23 +253,37 @@ def _by_person_by_region(residual_array):
     return np.nanmean(resid_copy, axis=0).T
 
 def imbalance_stats(data, residual_array):
-    """ Function computing the two measures from Nadig et al. (2021): we want the average imbalance
-    by person and the average imbalance by region. Average imbalance by person is equivalent to taking
-    the upper triangle of each of the matrix for each person and averaging all the data.
+    """ Function computing the imbalance measures described in Nadig et al. (2021). We additionally
+    compute an average imbalance by region by person.
 
-    Average imbalance by person is the equivalent of averaging each "horizontal slice" of the 3D
-    matrix (i.e., averaging on the 0 and 2 dimension).
+    The function outputs three dataframes.
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Dataframe containing the data used for computing the imbalance. We use it to extract
+        the index and use that for the new dataframes
+    residual_array : np.ndarray
+        numpy.ndarray of size AxAxP, where A is the number of region and P is the number
+        of participants. The array is filled with the orthogonal distances resulting from the
+        orthogonal regression.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Returns three dataframes containing the measures computed for the imbalance analysis.
     """
 
+    #Compute imbalance metrics
     list_imbalance_person = _by_person(residual_array=residual_array)
     avg_by_region = _by_region(residual_array=residual_array)
     avg_imb_by_pers_by_region = _by_person_by_region(residual_array=residual_array)
 
+    #Store the metrics in dataframes
     avg_imb_by_region = pd.DataFrame(index=data.columns.values, 
                                 data=avg_by_region, columns=['avg_imbalance_by_region'])
     avg_imb_by_person = pd.DataFrame(index=data.index, 
                                 data=list_imbalance_person, columns=['avg_imbalance_by_person'])
-
     avg_imb_by_pers_by_region = pd.DataFrame(index=data.index,
                                 data=avg_imb_by_pers_by_region,
                                 columns=data.columns.values)
@@ -188,8 +291,29 @@ def imbalance_stats(data, residual_array):
     return avg_imb_by_region, avg_imb_by_person, avg_imb_by_pers_by_region
 
 def export(data, residual_array, output_path, avg_imb_by_region, avg_imb_by_person, avg_imb_by_pers_by_region, name, all=False):
-    """ Function to export the results of the imbalance mapping to files. If requested by the user
+    """Function to export the results of the imbalance mapping to files. If requested by the user
     `sihnpy` will also output the individual orthogonal distances matrices.
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Original dataframe containing the data to use with the imbalance mapping.
+    residual_array : numpy.ndarray
+        numpy.ndarray of size AxAxP, where A is the number of region and P is the number
+        of participants. The array is filled with the orthogonal distances resulting from the
+        orthogonal regression.
+    output_path : str
+        Local path where the data should be output.
+    avg_imb_by_region : pandas.DataFrame
+        Dataframe containing the average imbalance by region
+    avg_imb_by_person : pandas.DataFrame
+        Dataframe containing the average imbalance by person
+    avg_imb_by_pers_by_region : pandas.DataFrame
+        Dataframe containing the average imbalance by region, by person
+    name : str
+        String to add as a suffix for all the output (user's choice)
+    all : bool, optional
+        Whether the user wants to output all individual participants' matrices, by default False
     """
 
     avg_imb_by_region.to_csv(f"{output_path}/avg_imbalance_by_region_{name}.csv")
