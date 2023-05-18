@@ -2,6 +2,30 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (2023-05-18)
+### Feature
+* Added averaging by region by person ([`a834bdb`](https://github.com/stong3/sihnpy/commit/a834bdb2ba079245a059bb21b38152ac8d904c37))
+* Added imbalance mapping as feature ([`969ef22`](https://github.com/stong3/sihnpy/commit/969ef223c76dbf5c8a93f43e3714e328b14a9033))
+* Added fingerprinting with spreadsheets ([`b200b76`](https://github.com/stong3/sihnpy/commit/b200b7660cd56be5f80116b92ee5db5c6c87b290))
+* Added data for fp and imb module ([`2fde01b`](https://github.com/stong3/sihnpy/commit/2fde01ba31c02a9d4a497dff3c41975542962421))
+
+### Fix
+* Fix display issue by forcing no output for that cell ([`2e4be26`](https://github.com/stong3/sihnpy/commit/2e4be26af533146bf9999b6aa2841e410cbdef9c))
+
+### Documentation
+* Added ref of NetNeuro paper across ([`8dc6096`](https://github.com/stong3/sihnpy/commit/8dc6096c2c8932ca7ec107c16e254d5defab07ed))
+* Finalized imbalance module documentation ([`360f82d`](https://github.com/stong3/sihnpy/commit/360f82d2d6c10110118669042ceb33ef6c01bfd7))
+* Adapted docstrings for imbalance mapping ([`668781a`](https://github.com/stong3/sihnpy/commit/668781a47a59501937108400dca91370d41e74ee))
+* New images for imbalance mapping ([`8a8796f`](https://github.com/stong3/sihnpy/commit/8a8796f031d74ab928f225493d2e57c2e57225a2))
+* Created custom robots.txt ([`3ee4b9c`](https://github.com/stong3/sihnpy/commit/3ee4b9c10d19310eea8e530724e33320c0b408f3))
+* Fix robots.txt issue on RTD ([`7889c3d`](https://github.com/stong3/sihnpy/commit/7889c3df471a92680c1ca74d582ef545b1208880))
+* Justified current error ([`d302e7c`](https://github.com/stong3/sihnpy/commit/d302e7c65cefc49d2fb1559b30740ff6d6f3f530))
+* Created imbalance docs ([`9c2e943`](https://github.com/stong3/sihnpy/commit/9c2e943fd6f9ad118a0c0e4a48be7cd8eb97a41f))
+* Changed rendering of changelog to avoid Sphinx warn ([`14c2c21`](https://github.com/stong3/sihnpy/commit/14c2c214474be55453831812811fe3b08bb32556))
+* Added Google verification ([`85d317b`](https://github.com/stong3/sihnpy/commit/85d317b3b25f0d637538a9a156b35f082d0b0ab2))
+* Updated article info for NetNeuro ([`1a55b73`](https://github.com/stong3/sihnpy/commit/1a55b7309887ad59d53a70e89874b7ecd58eeb6c))
+* Added documentation for tabular fingeprinting ([`736e6c3`](https://github.com/stong3/sihnpy/commit/736e6c376fc3cc1b1f5e0de23633d8513d2b6a7c))
+
 ## v0.3.0 (2023-04-25)
 ### Feature
 * Added data and data utility for sliding-window ([`bf51c11`](https://github.com/stong3/sihnpy/commit/bf51c11e5b4d020dd92f02afd49d598f88eda40f))
