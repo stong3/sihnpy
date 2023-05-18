@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.1 (2023-05-18)
+### Fix
+* Deleted robots.txt that caused issues with google search ([`32cf93c`](https://github.com/stong3/sihnpy/commit/32cf93ca66cf5895647c45c1c48a865a1f09c440))
+
 ## v0.4.0 (2023-05-18)
 ### Feature
 * Added averaging by region by person ([`a834bdb`](https://github.com/stong3/sihnpy/commit/a834bdb2ba079245a059bb21b38152ac8d904c37))
