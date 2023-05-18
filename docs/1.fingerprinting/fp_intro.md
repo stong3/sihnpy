@@ -102,4 +102,4 @@ Below is the list of references discussed on this page. This list is not extensi
 [^Kaufmann_2017]: Kaufmann et al. (2017). Nat Neuro. [10.1038/nn.4511](https://doi.org/10.1038/nn.4511)
 [^Kaufmann_2018]: Kaufmann et al. (2018). JAMA Psychiatry. [10.1001/jamapsychiatry.2018.0844](https://doi.org/10.1001/jamapsychiatry.2018.0844)
 [^Ousdal_2020]: Ousdal et al. (2020). Hum Brain Mapp. [10.1002/hbm.24833](https://10.1002/hbm.24833)
-[^St_Onge_2023]: St-Onge et al. (2023). Network Neuroscience. [10.1162/netn_a_00320](https://doi.org/10.1162/netn_a_00320)
+[^Stonge_2023]: St-Onge F, Javanray M, Pichet Binette A, Strikwerda-Brown C, Remz J, Spreng RN, Shafiei G, Misic B, Vachon-Presseau E, Villeneuve S. (In press). Functional connectome fingerprinting across the lifespan. Network Neuroscience. doi: [10.1162/netn_a_00320](https://doi.org/10.1162/netn_a_00320)
