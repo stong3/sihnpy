@@ -18,7 +18,7 @@ Neuroscientist by training, most of the tools I develop in `sihnpy` are neuroima
 
 If you use `sinhpy` in your academic work (or well, any other work where you would need such a package), please consider citing the paper detailing the development of the first few modules of this package and/or citing the package (example below in APA form):
 
-- St-Onge F, Javanray M, Pichet Binette A, Strikwerda-Brown C, Remz J, Spreng RN, Shafiei G, Misic B, Vachon-Presseau E, Villeneuve S. (2023) Functional connectome fingerprinting across the lifespan. Under review.
+- St-Onge F, Javanray M, Pichet Binette A, Strikwerda-Brown C, Remz J, Spreng RN, Shafiei G, Misic B, Vachon-Presseau E, Villeneuve S. (In press). Functional connectome fingerprinting across the lifespan. Network Neuroscience. doi: [10.1162/netn_a_00320](https://doi.org/10.1162/netn_a_00320)
 - St-Onge F & St-Onge G (2023). sihnpy: Study of Inter-individual Heterogeneity of Neuroimaging in Python. v[VERSION HERE], URL: https://github.com/stong3/sihnpy
 
 ## Installation
@@ -39,8 +39,9 @@ The package is separated in distinct modules with their own rationale, explanati
    - **Fingerprinting**: Computes individual-specific signatures of variables and the related metrics
    - **Spatial extent**: Computes individual-specific measures of how "abnormal" regions across the brain are compared to pre-computed thresholds
    - **Sliding-window**: Sample selection tool to create overlapping subgroups of individuals within a sample
+   - **Imbalance mapping**: Individual-specific measures of group deviation on region-to-region covariance
 
-While I try my best to simplify the concepts as much as possible, note that **an understanding of Python's basics is probably necessary** to run most of the modules.
+While I try my best to simplify the concepts as much as possible, note that **an understanding of Python's basics is probably necessary** to run most of the modules. The **Software carpentry** has a great free (most important!!) module to learn Python. You can find it [here](https://swcarpentry.github.io/python-novice-inflammation).
 
 ## Contributing
 

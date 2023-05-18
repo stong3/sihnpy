@@ -5,4 +5,5 @@ The first ever `sihnpy` module: the fingerprinting module. The documentation fir
 ```{toctree}
 fp_intro.md
 fingerprinting_module.ipynb
+fp_tab_module.ipynb
 ```

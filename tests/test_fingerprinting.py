@@ -1,9 +1,11 @@
 import os
+import math 
 import numpy as np
 import pandas as pd
 import pytest
 
 from sihnpy import fingerprinting as s_fp
+from sihnpy import datasets
 
 def test_import_fingerprint_ids():
     """Function testing the import of the fingerprinting IDs
@@ -196,3 +198,73 @@ def test_integration_fp_mats():
     assert os.path.exists("tests/test_data/fingerprinting/output/test/fp_metrics_test.csv"), "Export function didn't export FP metrics."
     assert os.path.exists("tests/test_data/fingerprinting/output/test/similarity_matrices"), "Export function didn't create a folder for similarity matrices."
     assert os.path.exists("tests/test_data/fingerprinting/output/test/subject_list"), "Export function didn't create a folder for subject lists."
+
+@pytest.fixture
+def data_fp_tab_import():
+    """ Creates the data use for tests
+    """
+
+    volume_data = datasets.pad_fptab_input()[0]
+
+    return volume_data
+
+@pytest.fixture
+def data_fingerprint_tabs():
+    """ Creates the data to use for the fingerprinting tabular data.
+    """
+
+    volume_data = datasets.pad_fptab_input()[0]
+    data_bl, data_fu = s_fp.import_fingerprint_data(data=volume_data, var='session')
+
+    return data_bl, data_fu
+
+@pytest.fixture
+def data_fingerprint_metrics():
+    """ Creates the data to use for testing the fingerprint metrics function.
+    """
+
+    volume_data = datasets.pad_fptab_input()[0]
+    data_bl, data_fu = s_fp.import_fingerprint_data(data=volume_data, var='session')
+    similarity_matrix = s_fp.fingerprint_tabs(data1=data_bl, data2=data_fu, pref='ctx')
+
+    return data_bl, similarity_matrix
+
+def test_import_fingerprint_data(data_fp_tab_import):
+    """ Test the import and clean of the data
+    """
+
+    data_bl, data_fu = s_fp.import_fingerprint_data(data=data_fp_tab_import, var='session')
+
+    assert len(data_bl) == 234, "Wrong number of rows for bl data"
+    assert len(data_bl.columns.values) == 70, "Wrong number of columns for bl data"
+    assert len(data_fu) == 234, "Wrong number of rows for fu data"
+    assert len(data_fu.columns.values) == 70, "Wrong number of columns for fu data"
+    assert data_bl.iloc[0,2] == 1768.0, "Rows are not in the right order for bl data"
+    assert data_fu.iloc[0,2] == 1845.0, "Rows are not in the right order for bl data"
+
+    assert data_bl.index.values.all() == data_fu.index.values.all(), "Index of the two datasets do not match. Won't fingerprint."
+
+def test_fingerprint_tabs(data_fingerprint_tabs):
+    """ Test the creation of the similarity matrix
+    """
+
+    data_bl, data_fu = data_fingerprint_tabs
+
+    similarity_matrix = s_fp.fingerprint_tabs(data1=data_bl, data2=data_fu, pref='ctx')
+
+    assert np.shape(similarity_matrix) == (234, 234), "Shape of similarity matrix is not 234x234"
+    assert math.isclose(similarity_matrix[0,0], 0.9993991493256379), "Wrong number in similarity matrix for SI"
+    assert math.isclose(similarity_matrix[0,1], 0.9668773975353411), "Wrong number in similarity matrix for OI (1)"
+    assert similarity_matrix[0,1] == similarity_matrix[1,0], "Similarity matrix is not mirrored in the lower triangle"
+
+
+def test_tab_metrics_calc(data_fingerprint_metrics):
+    """ Test the computation of the fingerprint metrics.
+    """
+    data_bl, similar_matrix = data_fingerprint_metrics
+
+    fp_metrics = s_fp.tab_metrics_calc(data=data_bl, similar_matrix=similar_matrix, name='test')
+
+    assert len(fp_metrics) == len(data_bl), "The fp_metrics doesn't have the right number of participants"
+    assert math.isclose(fp_metrics.iloc[0,0], 0.9993991493256379), "The SI of the first participant is not right"
+    assert math.isclose(fp_metrics.iloc[233,3], 0.018491580529617635), "The DI of the last participant is not right"

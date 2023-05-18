@@ -35,6 +35,25 @@ def pad_fp_input():
 
     return participants, path_participant_file, dict_paths
 
+def pad_fptab_input():
+    """ Loads the spreadsheets for the 521 PREVENT-AD FreeSurfer-processed structural scans.
+    It outputs one spreadsheet for volume, one for thickness, and one for the rest (sub-cortical),
+    TIV, etc.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Returns three pandas.DataFrame containing the structural data for the PREVENT-AD
+        participants.
+    """
+
+    with resources.files('sihnpy.data.fingerprinting_tab') as f:
+        volume_data = pd.read_csv(f'{str(f)}/conp_fsv7_1_0_volume.csv').set_index('participant_id')
+        thickness_data = pd.read_csv(f'{str(f)}/conp_fsv7_1_0_thickness.csv').set_index('participant_id')
+        aseg_data = pd.read_csv(f'{str(f)}/conp_fsv7_1_0_aseg.csv').set_index('participant_id')
+
+    return volume_data, thickness_data, aseg_data
+
 def pad_spex_input():
     """Loads the spreadsheets for the simulated tau-PET data for the 308 PREVENT-AD participants
     available in the Open dataset. This data is used to test and practice the spatial extent
@@ -77,3 +96,22 @@ def pad_sw_input():
         age_data = pd.read_csv(f'{str(f)}/conp_simulated_age_data.csv').set_index('participant_id')
 
     return age_data
+
+def pad_imb_input():
+    """ Loads the spreadsheets for the 521 PREVENT-AD FreeSurfer-processed structural scans.
+    It outputs one spreadsheet for volume, one for thickness, and one for the rest (sub-cortical),
+    TIV, etc.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Returns three pandas.DataFrame containing the structural data for the PREVENT-AD
+        participants.
+    """
+
+    with resources.files('sihnpy.data.fingerprinting_tab') as f:
+        volume_data = pd.read_csv(f'{str(f)}/conp_fsv7_1_0_volume.csv').set_index('participant_id')
+        thickness_data = pd.read_csv(f'{str(f)}/conp_fsv7_1_0_thickness.csv').set_index('participant_id')
+        aseg_data = pd.read_csv(f'{str(f)}/conp_fsv7_1_0_aseg.csv').set_index('participant_id')
+
+    return volume_data, thickness_data, aseg_data

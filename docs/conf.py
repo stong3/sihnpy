@@ -39,3 +39,8 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "sphinx_rtd_theme"
 html_logo = "images/sihnpy_logo_small_no_bg.png" #Page logo for ReadTheDocs (200px max)
 html_favicon = "images/sihnpy_logo_small_no_bg.png" #Page icon browser logo
+myst_html_meta = { #Google Analytics Verification into the meta data of each page.
+    "description lang=en":"Simple set of analytical tools to study inter-individual differences in neuroimaging.",
+    "google-site-verification":"tL6GkVwBg1SO3nHWAJDCJsB03NTrUvxkYPAWrMWuwj0"
+}
+html_extra_path = ["_html"] #To grab the robots.txt

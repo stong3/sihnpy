@@ -76,4 +76,4 @@ There aren't currently a lot of future updates planned for the **sliding-window*
 Using a **sliding-window** approach for participants has not been used extensively in the literature. Here are a few references using this method.
 
 [^Vasa_2018]: Váša F, Seidlitz J, Romero-Garcia R, Whitaker KJ, Rosenthal G, Vértes PE, Shinn M, Alexander-Bloch A, Fonagy P, Dolan RJ, Jones PB, Goodyer IM; NSPN consortium; Sporns O, Bullmore ET. Adolescent Tuning of Association Cortex in Human Structural Brain Networks. Cereb Cortex. 2018 Jan 1;28(1):281-294. doi: 10.1093/cercor/bhx249. PMID: 29088339; PMCID: PMC5903415.
-[^Stonge_2023]: St-Onge et al. (Accepted). Network Neuroscience.
+[^Stonge_2023]: St-Onge F, Javanray M, Pichet Binette A, Strikwerda-Brown C, Remz J, Spreng RN, Shafiei G, Misic B, Vachon-Presseau E, Villeneuve S. (In press). Functional connectome fingerprinting across the lifespan. Network Neuroscience. doi: [10.1162/netn_a_00320](https://doi.org/10.1162/netn_a_00320)
